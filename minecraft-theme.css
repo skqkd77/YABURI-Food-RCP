@@ -42,6 +42,16 @@ body::before {
   z-index: -1;
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .36;
+  z-index: -1;
+  transition: background .25s ease, opacity .25s ease;
+}
+
 header {
   position: relative;
   overflow: hidden;
@@ -154,6 +164,30 @@ header h1 {
 .main {
   padding: 30px;
   min-height: 590px;
+  overflow: hidden;
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+.main::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  opacity: .55;
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,.08) 48% 52%, transparent 52%),
+    linear-gradient(0deg, transparent 0 48%, rgba(255,255,255,.08) 48% 52%, transparent 52%);
+  background-size: 64px 64px;
+  mix-blend-mode: screen;
+}
+
+.recipe-header,
+.craft-area,
+.simple-area,
+.section-divider,
+.totals-section {
+  position: relative;
+  z-index: 2;
 }
 
 .recipe-header {
@@ -179,6 +213,7 @@ header h1 {
   padding: 10px 14px;
   text-shadow: 2px 2px 0 #000;
   box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .12);
+  transition: background .25s ease, border-color .25s ease, color .25s ease, box-shadow .25s ease;
 }
 
 .craft-area,
@@ -189,6 +224,29 @@ header h1 {
   background: rgba(16, 16, 16, .36);
   border: 4px solid rgba(255, 255, 255, .08);
   box-shadow: inset 0 0 0 4px rgba(0, 0, 0, .18);
+  position: relative;
+  overflow: hidden;
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+.craft-area::before,
+.simple-area::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  opacity: .45;
+  background:
+    linear-gradient(90deg, transparent 0 49%, rgba(255,255,255,.16) 49% 51%, transparent 51%),
+    linear-gradient(0deg, transparent 0 49%, rgba(255,255,255,.12) 49% 51%, transparent 51%);
+  background-size: 72px 72px;
+  z-index: 0;
+}
+
+.craft-area > *,
+.simple-area > * {
+  position: relative;
+  z-index: 1;
 }
 
 .grid-label,
@@ -289,6 +347,16 @@ header h1 {
 .tool-mid {
   font-size: 58px;
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, .58));
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border: 5px solid;
+  border-top-color: rgba(255,255,255,.35);
+  border-left-color: rgba(255,255,255,.35);
+  border-right-color: rgba(0,0,0,.55);
+  border-bottom-color: rgba(0,0,0,.55);
+  background: rgba(0,0,0,.22);
 }
 
 .qty-control {
@@ -417,6 +485,310 @@ header h1 {
   color: #eeeeee;
   font-size: 17px;
   text-shadow: 2px 2px 0 #000;
+}
+
+.tool-ambience {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.fx {
+  --x: 50%;
+  --drift: 0px;
+  position: absolute;
+  left: var(--x);
+  bottom: 16%;
+  width: 20px;
+  height: 20px;
+  opacity: .72;
+  filter: drop-shadow(3px 3px 0 rgba(0,0,0,.45));
+  animation: float-fx 4s linear infinite;
+  animation-delay: calc(var(--i) * -.45s);
+}
+
+.fx::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  box-shadow: 20px 10px 0 rgba(255,255,255,.18);
+}
+
+@keyframes float-fx {
+  0% { transform: translate3d(0, 72px, 0) scale(.8); opacity: 0; }
+  16% { opacity: .7; }
+  100% { transform: translate3d(var(--drift), -420px, 0) scale(1.25); opacity: 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: brightness(1) drop-shadow(4px 4px 0 rgba(0,0,0,.58)); }
+  50% { filter: brightness(1.2) drop-shadow(4px 4px 0 rgba(0,0,0,.58)); }
+}
+
+@keyframes tool-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+body.tool-pot {
+  --gold: #ffd36c;
+  --green: #8dff83;
+  --blue: #75d7ff;
+  --panel: #4f4a42;
+}
+
+body.tool-pot::after {
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255, 218, 100, .2), transparent 18%),
+    radial-gradient(circle at 22% 76%, rgba(110, 215, 255, .16), transparent 20%),
+    linear-gradient(135deg, rgba(70, 42, 18, .42), rgba(15, 25, 32, .18));
+}
+
+body.tool-pot .main {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 230, 145, .18), transparent 28%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 16px, transparent 16px 32px),
+    linear-gradient(180deg, #5b4931, #2f2d29);
+  border-top-color: #b18b57;
+  border-left-color: #b18b57;
+  box-shadow: 8px 8px 0 rgba(0,0,0,.42), 0 0 38px rgba(255, 172, 68, .22), inset -4px -4px 0 rgba(0,0,0,.2);
+}
+
+body.tool-pot .craft-area {
+  background:
+    radial-gradient(ellipse at 52% 56%, rgba(89, 150, 170, .38), transparent 34%),
+    linear-gradient(180deg, rgba(95, 64, 34, .74), rgba(30, 27, 22, .82));
+  border-color: rgba(255, 211, 108, .24);
+}
+
+body.tool-pot .tool-badge,
+body.tool-pot .result-slot,
+body.tool-pot .big-result {
+  border-color: #ffd36c;
+  box-shadow: 0 0 0 4px rgba(0,0,0,.3), 0 0 28px rgba(255, 194, 88, .42);
+}
+
+body.tool-pot .fx-steam,
+body.tool-pot .fx-smoke {
+  color: rgba(230, 245, 255, .72);
+  border-radius: 0;
+}
+
+body.tool-pot .fx-steam::before,
+body.tool-pot .fx-smoke::before {
+  clip-path: polygon(25% 0, 75% 0, 75% 25%, 100% 25%, 100% 75%, 75% 75%, 75% 100%, 25% 100%, 25% 75%, 0 75%, 0 25%, 25% 25%);
+}
+
+body.tool-pot .fx-bubble {
+  color: rgba(120, 220, 255, .62);
+}
+
+body.tool-pot .fx-bubble::before {
+  border: 4px solid currentColor;
+  background: transparent;
+}
+
+body.tool-board {
+  --gold: #b8ff82;
+  --green: #7cff69;
+  --panel: #4d3a26;
+}
+
+body.tool-board::after {
+  background:
+    radial-gradient(circle at 80% 20%, rgba(147, 255, 112, .22), transparent 18%),
+    linear-gradient(135deg, rgba(49, 104, 36, .36), rgba(90, 52, 20, .26));
+}
+
+body.tool-board .main {
+  background:
+    repeating-linear-gradient(90deg, rgba(80, 45, 18, .82) 0 32px, rgba(117, 72, 32, .82) 32px 64px),
+    linear-gradient(180deg, #6f4723, #34200f);
+  border-top-color: #b98345;
+  border-left-color: #b98345;
+}
+
+body.tool-board .simple-area {
+  background:
+    linear-gradient(115deg, transparent 0 44%, rgba(230, 240, 220, .18) 44% 47%, transparent 47%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 10px, transparent 10px 28px),
+    linear-gradient(180deg, rgba(128, 83, 42, .9), rgba(72, 42, 18, .9));
+  border-color: rgba(186, 255, 130, .22);
+}
+
+body.tool-board .tool-mid {
+  background:
+    linear-gradient(135deg, #e4e4e4 0 45%, #8a8a8a 45% 55%, #353535 55% 100%);
+  color: #ffffff;
+  animation: tool-bob 1.8s ease-in-out infinite;
+}
+
+body.tool-board .fx-leaf {
+  color: rgba(122, 255, 96, .74);
+}
+
+body.tool-board .fx-leaf::before {
+  clip-path: polygon(50% 0, 100% 45%, 72% 100%, 28% 100%, 0 45%);
+}
+
+body.tool-board .fx-cut,
+body.tool-board .fx-grain {
+  color: rgba(255, 244, 185, .7);
+  width: 36px;
+  height: 8px;
+}
+
+body.tool-board .fx-cut::before,
+body.tool-board .fx-grain::before {
+  transform: rotate(-35deg);
+}
+
+body.tool-furnace {
+  --gold: #ffb13b;
+  --green: #ffe66b;
+  --panel: #463b35;
+}
+
+body.tool-furnace::after {
+  opacity: .55;
+  background:
+    radial-gradient(circle at 50% 80%, rgba(255, 85, 20, .42), transparent 32%),
+    radial-gradient(circle at 12% 16%, rgba(255, 205, 84, .2), transparent 16%),
+    linear-gradient(180deg, rgba(40, 16, 8, .18), rgba(120, 32, 8, .28));
+}
+
+body.tool-furnace .main {
+  background:
+    radial-gradient(ellipse at 50% 82%, rgba(255, 95, 24, .34), transparent 30%),
+    repeating-linear-gradient(90deg, #3b3b3b 0 30px, #262626 30px 60px),
+    linear-gradient(180deg, #4f4f4f, #1a1512);
+  border-top-color: #9a8c7d;
+  border-left-color: #9a8c7d;
+  box-shadow: 8px 8px 0 rgba(0,0,0,.48), 0 0 42px rgba(255, 86, 24, .28), inset 0 -18px 0 rgba(255, 89, 20, .12);
+}
+
+body.tool-furnace .simple-area {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(255, 92, 23, .6), transparent 34%),
+    linear-gradient(180deg, rgba(67, 67, 67, .85), rgba(25, 18, 15, .95));
+  border-color: rgba(255, 139, 47, .34);
+}
+
+body.tool-furnace .tool-mid {
+  background:
+    radial-gradient(circle at 50% 76%, #ff4e1f 0 22%, #ffb13b 22% 34%, transparent 35%),
+    linear-gradient(180deg, #3f3f3f, #181818);
+  animation: pulse-glow 1.3s ease-in-out infinite;
+}
+
+body.tool-furnace .fx-ember,
+body.tool-furnace .fx-spark {
+  color: rgba(255, 186, 62, .86);
+}
+
+body.tool-furnace .fx-flame {
+  color: rgba(255, 82, 24, .85);
+}
+
+body.tool-furnace .fx-flame::before {
+  clip-path: polygon(50% 0, 82% 38%, 68% 100%, 30% 100%, 15% 42%);
+}
+
+body.tool-pan {
+  --gold: #ffe880;
+  --green: #fffd8a;
+  --panel: #3e4648;
+}
+
+body.tool-pan::after {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 244, 143, .26), transparent 17%),
+    radial-gradient(circle at 82% 72%, rgba(255, 160, 56, .18), transparent 18%),
+    linear-gradient(135deg, rgba(75, 82, 82, .24), rgba(74, 46, 12, .2));
+}
+
+body.tool-pan .main {
+  background:
+    radial-gradient(ellipse at 52% 48%, rgba(255, 236, 127, .14), transparent 28%),
+    repeating-linear-gradient(45deg, #3d4748 0 22px, #2b3334 22px 44px),
+    linear-gradient(180deg, #4c5658, #202526);
+  border-top-color: #a8b1b2;
+  border-left-color: #a8b1b2;
+}
+
+body.tool-pan .simple-area {
+  background:
+    radial-gradient(ellipse at 50% 58%, rgba(255, 227, 92, .34), transparent 28%),
+    linear-gradient(180deg, rgba(56, 67, 68, .88), rgba(22, 25, 26, .95));
+  border-color: rgba(255, 232, 128, .32);
+}
+
+body.tool-pan .tool-mid {
+  background:
+    radial-gradient(circle at 50% 50%, #ffd960 0 17%, #f7f4dc 17% 30%, #282d2e 31% 58%, #141718 59%);
+  animation: pulse-glow 1.7s ease-in-out infinite;
+}
+
+body.tool-pan .fx-sizzle,
+body.tool-pan .fx-oil,
+body.tool-pan .fx-spark {
+  color: rgba(255, 235, 111, .78);
+}
+
+body.tool-pan .fx-sizzle::before {
+  height: 6px;
+  transform: rotate(25deg);
+}
+
+body.tool-pan .fx-oil::before {
+  clip-path: polygon(50% 0, 80% 40%, 70% 100%, 30% 100%, 20% 40%);
+}
+
+body.tool-crafting {
+  --gold: #ffe066;
+  --green: #6dff6d;
+  --panel: #59402a;
+}
+
+body.tool-crafting::after {
+  background:
+    radial-gradient(circle at 72% 20%, rgba(255, 225, 118, .18), transparent 18%),
+    linear-gradient(135deg, rgba(113, 70, 28, .34), rgba(42, 26, 11, .22));
+}
+
+body.tool-crafting .main {
+  background:
+    repeating-linear-gradient(90deg, rgba(97, 58, 23, .9) 0 32px, rgba(126, 78, 32, .9) 32px 64px),
+    linear-gradient(180deg, #6f4723, #2d1b0b);
+  border-top-color: #b98345;
+  border-left-color: #b98345;
+}
+
+body.tool-crafting .craft-area {
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.16) 0 49%, rgba(255,255,255,.1) 49% 51%, rgba(0,0,0,.16) 51%),
+    linear-gradient(0deg, rgba(0,0,0,.16) 0 49%, rgba(255,255,255,.1) 49% 51%, rgba(0,0,0,.16) 51%),
+    linear-gradient(180deg, rgba(123, 78, 35, .86), rgba(64, 38, 15, .92));
+  background-size: 96px 96px, 96px 96px, auto;
+}
+
+body.tool-crafting .fx-chip,
+body.tool-crafting .fx-saw,
+body.tool-crafting .fx-grid {
+  color: rgba(255, 220, 139, .72);
+}
+
+body.tool-crafting .fx-chip::before {
+  clip-path: polygon(0 20%, 100% 0, 75% 80%, 20% 100%);
+}
+
+body.tool-crafting .fx-saw::before,
+body.tool-crafting .fx-grid::before {
+  height: 8px;
 }
 
 @media (max-width: 900px) {

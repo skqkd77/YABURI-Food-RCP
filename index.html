@@ -605,6 +605,35 @@ let expandedSet = new Set(); // 펼쳐진 재료 카드 이름 목록
 /* ════════════════════════════════════════════════════
    헬퍼
 ════════════════════════════════════════════════════ */
+function toolClass(tool) {
+  return {
+    "냄비": "tool-pot",
+    "도마": "tool-board",
+    "프라이팬": "tool-pan",
+    "화로": "tool-furnace",
+    "제작대": "tool-crafting",
+  }[tool] || "tool-crafting";
+}
+
+function setToolTheme(tool) {
+  document.body.classList.remove("tool-pot", "tool-board", "tool-pan", "tool-furnace", "tool-crafting");
+  document.body.classList.add(toolClass(tool));
+}
+
+function toolAmbience(tool) {
+  const labels = {
+    "냄비": ["steam", "steam", "bubble", "steam", "bubble", "steam"],
+    "도마": ["leaf", "cut", "leaf", "cut", "leaf", "grain"],
+    "프라이팬": ["sizzle", "oil", "sizzle", "oil", "spark", "sizzle"],
+    "화로": ["ember", "flame", "smoke", "ember", "flame", "spark"],
+    "제작대": ["chip", "saw", "chip", "grid", "chip", "saw"],
+  }[tool] || ["chip", "grid", "chip"];
+
+  return `<div class="tool-ambience" aria-hidden="true">
+    ${labels.map((name, index) => `<span class="fx fx-${name}" style="--i:${index}; --x:${10 + index * 15}%; --drift:${(index - 2) * 12}px"></span>`).join("")}
+  </div>`;
+}
+
 // 재료 이름으로 부재료 레시피 찾기
 function findSubRecipe(name) {
   return RECIPES.find(r => r.category === "sub" && r.result.name === name);
@@ -646,6 +675,8 @@ function pick(id) {
   activeId  = id;
   targetQty = 1;
   expandedSet.clear();
+  const recipe = RECIPES.find(r => r.id === id);
+  if (recipe) setToolTheme(recipe.tool);
   document.querySelectorAll(".recipe-btn").forEach(b => b.classList.remove("active"));
   const btn = document.getElementById("btn-" + id);
   if (btn) btn.classList.add("active");
@@ -838,6 +869,7 @@ function renderMain() {
   const ti = TOOL[r.tool];
 
   document.getElementById("main-content").innerHTML = `
+    ${toolAmbience(r.tool)}
     <div class="recipe-header">
       <span class="recipe-title">${r.result.icon}&nbsp;${r.name}</span>
       <span class="tool-badge">${ti.icon} ${r.tool}</span>
