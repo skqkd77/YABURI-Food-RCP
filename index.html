@@ -399,6 +399,7 @@
       .tc-total { font-size: 20px; }
     }
   </style>
+  <link rel="stylesheet" href="./minecraft-theme.css">
 </head>
 <body>
 
@@ -684,10 +685,11 @@ function refreshTotals() {
     const total    = ing.base * crafts;
     const subR     = findSubRecipe(ing.name);
     const expanded = expandedSet.has(ing.name);
+    const safeName = ing.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 
     const expandBtn = subR
       ? `<button class="expand-btn${expanded ? " open" : ""}"
-           onclick="toggleSub(event,'${CSS.escape(ing.name)}')"
+           onclick="toggleSub(event,'${safeName}')"
            title="원재료 보기">${expanded ? "▼" : "▶"}</button>`
       : "";
 
@@ -846,6 +848,7 @@ function renderMain() {
 }
 
 renderSidebar();
+pick("hamburger");
 </script>
 </body>
 </html>
