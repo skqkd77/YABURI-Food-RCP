@@ -451,7 +451,7 @@ const RECIPES = [
   /* ── 부재료 ─────────────────────────────────── */
   {
     id:"flour_dough", name:"밀가루 반죽", category:"sub", tool:"제작대",
-    result:{ icon:"🫓", name:"밀가루 반죽", qty:1 },
+    result:{ icon:"🫓", name:"밀가루 반죽", qty:3 },
     slots:{
       1:{ icon:"🌾", name:"밀",   qty:1 },
       2:{ icon:"🌾", name:"밀",   qty:1 },
@@ -470,22 +470,22 @@ const RECIPES = [
     input: { icon:"🟤", name:"다진 소고기", qty:1 },
   },
   {
-    id:"raw_chicken_piece", name:"닭고기 살점(생)", category:"sub", tool:"도마",
+    id:"raw_chicken_piece", name:"익히지 않은 닭고기 살점", category:"sub", tool:"도마",
     result:{ icon:"🍗", name:"익히지 않은 닭고기 살점", qty:2 },
     input: { icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
   },
   {
-    id:"raw_cod_piece", name:"대구 살점(생)", category:"sub", tool:"도마",
+    id:"raw_cod_piece", name:"익히지 않은 대구 살점", category:"sub", tool:"도마",
     result:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:2 },
     input: { icon:"🐟", name:"익히지 않은 대구", qty:1 },
   },
   {
-    id:"raw_salmon_piece", name:"연어 살점(생)", category:"sub", tool:"도마",
+    id:"raw_salmon_piece", name:"익히지 않은 연어 살점", category:"sub", tool:"도마",
     result:{ icon:"🟠", name:"익히지 않은 연어 살점", qty:2 },
     input: { icon:"🐠", name:"익히지 않은 연어", qty:1 },
   },
   {
-    id:"raw_mutton_piece", name:"양고기 살점(생)", category:"sub", tool:"도마",
+    id:"raw_mutton_piece", name:"익히지 않은 양고기 살점", category:"sub", tool:"도마",
     result:{ icon:"🔴", name:"익히지 않은 양고기 살점", qty:2 },
     input: { icon:"🐑", name:"익히지 않은 양고기", qty:1 },
   },
@@ -495,17 +495,17 @@ const RECIPES = [
     input: { icon:"🥦", name:"양배추", qty:1 },
   },
   {
-    id:"cooked_mutton", name:"양고기 살점(익힘)", category:"sub", tool:"화로",
+    id:"cooked_mutton", name:"익힌 양고기 살점", category:"sub", tool:"화로",
     result:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
-    input: { icon:"🐑", name:"익히지 않은 양고기", qty:1 },
+    input: { icon:"🔴", name:"익히지 않은 양고기 살점", qty:1 },
   },
   {
-    id:"cooked_chicken", name:"닭고기 살점(익힘)", category:"sub", tool:"화로",
+    id:"cooked_chicken", name:"익힌 닭고기 살점", category:"sub", tool:"화로",
     result:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
-    input: { icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
+    input: { icon:"🍗", name:"익히지 않은 닭고기 살점", qty:1 },
   },
   {
-    id:"cooked_salmon", name:"연어 살점(익힘)", category:"sub", tool:"화로",
+    id:"cooked_salmon", name:"익힌 연어 살점", category:"sub", tool:"화로",
     result:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
     input: { icon:"🟠", name:"익히지 않은 연어 살점", qty:1 },
   },
