@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>야부리들의 요리 공방소</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slot-sz:   96px;
+      --slot-icon: 34px;
+      --slot-lbl:  11px;
+      --gold:  #FFD700;
+      --green: #55FF55;
+      --blue:  #55AAFF;
+      --panel: #3c3c3c;
+      --slot-empty: #1a1a1a;
+      --slot-fill:  #252525;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #111;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    /* ══════════ HEADER ══════════ */
+    header {
+      background: linear-gradient(180deg, #7a5528 0%, #4a2e0e 60%, #2e1800 100%);
+      border-bottom: 5px solid #a07830;
+      text-align: center;
+      padding: 22px 16px;
+    }
+    header::before, header::after {
+      content: "";
+      display: block;
+      height: 3px;
+      background: repeating-linear-gradient(90deg, #c8a050 0 8px, #6b4010 8px 16px);
+    }
+    header::before { margin-bottom: 14px; }
+    header::after  { margin-top:    14px; }
+    header h1 {
+      font-size: 22px;
+      color: var(--gold);
+      text-shadow: 2px 2px 0 #7a5c00, 4px 4px 0 #3a2a00;
+      letter-spacing: 2px;
+      line-height: 1.7;
+    }
+
+    /* ══════════ LAYOUT ══════════ */
+    .layout {
+      display: flex;
+      gap: 14px;
+      padding: 14px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+
+    /* MC outset panel */
+    .mc-panel {
+      background: var(--panel);
+      border: 4px solid;
+      border-top-color:    #707070;
+      border-left-color:   #707070;
+      border-right-color:  #181818;
+      border-bottom-color: #181818;
+    }
+
+    /* ══════════ SIDEBAR ══════════ */
+    .sidebar { width: 230px; flex-shrink: 0; padding: 14px; }
+
+    .cat-section { margin-bottom: 16px; }
+    .cat-title {
+      font-size: 12px;
+      color: var(--gold);
+      padding: 8px 10px;
+      margin-bottom: 9px;
+      background: #1a1a1a;
+      border-left: 4px solid var(--gold);
+      line-height: 1.7;
+    }
+    .recipe-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+    .recipe-btn {
+      background: #2c2c2c;
+      border: 3px solid;
+      border-top-color:    #525252;
+      border-left-color:   #525252;
+      border-right-color:  #0e0e0e;
+      border-bottom-color: #0e0e0e;
+      color: #ccc;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 11px 10px;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.9;
+    }
+    .recipe-btn:hover  { filter: brightness(1.3); color: var(--gold); }
+    .recipe-btn.active {
+      background: #3e2800;
+      border-top-color:    #a07830;
+      border-left-color:   #a07830;
+      border-right-color:  #180e00;
+      border-bottom-color: #180e00;
+      color: var(--gold);
+    }
+
+    /* ══════════ MAIN ══════════ */
+    .main { flex: 1; min-width: 0; padding: 22px; }
+
+    .recipe-header {
+      display: flex; align-items: center;
+      gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .recipe-title { font-size: 18px; color: var(--gold); line-height: 1.6; }
+    .tool-badge {
+      font-size: 11px;
+      background: #1a1a1a;
+      border: 2px solid #a07830;
+      color: #ffd060;
+      padding: 6px 13px;
+      line-height: 1.9;
+    }
+
+    /* ══════════ SLOTS ══════════ */
+    .slot {
+      width: var(--slot-sz);
+      height: var(--slot-sz);
+      background: var(--slot-empty);
+      border: 3px solid;
+      border-top-color:    #111;
+      border-left-color:   #111;
+      border-right-color:  #666;
+      border-bottom-color: #666;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 3px; position: relative;
+    }
+    .slot.filled {
+      background: var(--slot-fill);
+      border-top-color:    #0d0d0d;
+      border-left-color:   #0d0d0d;
+      border-right-color:  #767676;
+      border-bottom-color: #767676;
+      cursor: help;
+    }
+    .slot .item-icon { font-size: var(--slot-icon); line-height: 1; }
+    .slot .item-name {
+      font-size: var(--slot-lbl);
+      color: #ccc; text-align: center;
+      line-height: 1.5; width: 100%; padding: 0 4px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: keep-all;
+    }
+    .slot .slot-num {
+      position: absolute; top: 3px; right: 4px;
+      font-size: 8px; color: #555;
+    }
+    /* Hover tooltip */
+    .slot.filled:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: #111; border: 3px solid #666;
+      color: #fff; font-size: 9px;
+      padding: 5px 10px; white-space: nowrap;
+      z-index: 200; pointer-events: none; line-height: 1.8;
+    }
+
+    /* ══════════ GRIDS ══════════ */
+    .grid-wrap { display: flex; flex-direction: column; }
+    .grid-label { font-size: 11px; color: #777; margin-bottom: 10px; }
+    .grid-3x3 { display: grid; grid-template-columns: repeat(3, var(--slot-sz)); gap: 5px; }
+    .grid-3x2 { display: grid; grid-template-columns: repeat(3, var(--slot-sz)); gap: 5px; }
+
+    /* Bowl slot */
+    .bowl-area {
+      margin-top: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 5px;
+    }
+    .bowl-divider { width: 100%; border-top: 2px dashed #3a6a8a; }
+    .bowl-label { font-size: 11px; color: var(--blue); }
+    .slot.bowl {
+      border-top-color:    #091830;
+      border-left-color:   #091830;
+      border-right-color:  #4a9abf;
+      border-bottom-color: #4a9abf;
+      background: #0c1a28;
+    }
+    .slot.bowl.filled { background: #112030; }
+
+    /* ══════════ CRAFT AREA ══════════ */
+    .craft-area {
+      display: flex; align-items: center;
+      gap: 22px; flex-wrap: wrap;
+    }
+    .craft-arrow { font-size: 32px; color: var(--gold); line-height: 1; }
+
+    /* Result */
+    .result-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .result-slot {
+      width: 106px; height: 106px;
+      background: var(--slot-empty);
+      border: 4px solid var(--gold);
+      box-shadow: 0 0 12px rgba(255,215,0,.2);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+    }
+    .result-slot .r-icon { font-size: 40px; }
+    .result-slot .r-name { font-size: 10px; color: var(--gold); text-align: center; line-height: 1.6; }
+
+    /* Qty */
+    .qty-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .qty-label { font-size: 10px; color: #888; }
+    .qty-control { display: flex; border: 2px solid var(--gold); }
+    .qty-btn {
+      width: 34px; height: 34px;
+      background: #3a3000; border: none;
+      color: var(--gold); font-family: 'Press Start 2P', monospace;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qty-btn:hover { background: #5a5000; }
+    .qty-num {
+      width: 54px; text-align: center;
+      background: #1a1600; color: var(--gold);
+      font-family: 'Press Start 2P', monospace; font-size: 13px;
+      border: none;
+      border-left: 2px solid var(--gold);
+      border-right: 2px solid var(--gold);
+      padding: 5px 0; outline: none;
+    }
+    .qty-num::-webkit-outer-spin-button,
+    .qty-num::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .qty-num[type=number] { -moz-appearance: textfield; }
+
+    /* ══════════ SIMPLE TOOL ══════════ */
+    .simple-area {
+      display: flex; align-items: center;
+      gap: 22px; flex-wrap: wrap;
+    }
+    .big-slot {
+      width: 96px; height: 96px;
+      background: var(--slot-empty);
+      border: 3px solid;
+      border-top-color: #111; border-left-color: #111;
+      border-right-color: #666; border-bottom-color: #666;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+    }
+    .big-slot .b-icon { font-size: 36px; }
+    .big-slot .b-name { font-size: 11px; color: #aaa; text-align: center; line-height: 1.5; max-width: 90px; word-break: keep-all; }
+    .big-result {
+      width: 110px; height: 110px;
+      background: var(--slot-empty);
+      border: 4px solid var(--gold);
+      box-shadow: 0 0 12px rgba(255,215,0,.2);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+    }
+    .big-result .b-icon { font-size: 40px; }
+    .big-result .b-name { font-size: 10px; color: var(--gold); text-align: center; line-height: 1.6; }
+    .big-result .b-per  { font-size: 11px; color: var(--green); }
+    .tool-mid { font-size: 46px; line-height: 1; }
+    .simple-right { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+    /* ══════════ DIVIDER ══════════ */
+    .section-divider {
+      height: 3px; margin: 22px 0;
+      background: repeating-linear-gradient(90deg, #555 0 4px, transparent 4px 8px);
+    }
+
+    /* ══════════ TOTALS ══════════ */
+    .totals-section { }
+    .totals-header { margin-bottom: 12px; }
+    .totals-header h3 { font-size: 14px; color: #aaa; margin-bottom: 10px; }
+    .totals-meta { font-size: 11px; color: #888; line-height: 2.2; }
+    .totals-meta .hi { color: var(--green); }
+    .totals-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+    /* Total card — column layout */
+    .total-card {
+      display: flex; flex-direction: column;
+      background: #222;
+      border: 3px solid;
+      border-top-color:    #484848;
+      border-left-color:   #484848;
+      border-right-color:  #0a0a0a;
+      border-bottom-color: #0a0a0a;
+      padding: 14px 16px;
+      min-width: 180px;
+    }
+    .total-card.bowl-card {
+      border-top-color: #2a5a7b;
+      border-left-color: #2a5a7b;
+    }
+    /* Top row inside card */
+    .card-top {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .tc-icon { font-size: 38px; line-height: 1; flex-shrink: 0; }
+    .tc-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .tc-name    { font-size: 12px; color: #ddd; line-height: 1.7; word-break: keep-all; }
+    .tc-formula { font-size: 11px; color: #777; }
+    .tc-total   { font-size: 26px; color: var(--green); text-shadow: 1px 1px 0 #004400; }
+    .bowl-card .tc-total { color: var(--blue); text-shadow: 1px 1px 0 #002244; }
+
+    /* Expand button */
+    .expand-btn {
+      flex-shrink: 0;
+      background: #2a2000;
+      border: 2px solid #a07030;
+      color: #ffc000;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 7px 10px;
+      cursor: pointer;
+      line-height: 1;
+      align-self: flex-start;
+    }
+    .expand-btn:hover { background: #3a3000; border-color: var(--gold); color: var(--gold); }
+    .expand-btn.open  { background: #3a2800; border-color: #ffaa00; color: #ffaa00; }
+
+    /* Sub-panel inside total card */
+    .sub-panel {
+      margin-top: 12px;
+      border-top: 2px dashed #444;
+      padding-top: 10px;
+    }
+    .sp-title {
+      font-size: 10px; color: #888;
+      margin-bottom: 11px; line-height: 1.9;
+    }
+    .sp-rows { display: flex; flex-direction: column; gap: 9px; }
+    .sp-row {
+      display: flex; align-items: center;
+      gap: 11px; font-size: 11px;
+    }
+    .sp-icon { font-size: 22px; line-height: 1; }
+    .sp-name { color: #aaa; flex: 1; line-height: 1.6; word-break: keep-all; }
+    .sp-qty  { font-size: 15px; color: var(--green); text-shadow: 1px 1px 0 #004400; flex-shrink: 0; }
+
+    /* ══════════ EMPTY STATE ══════════ */
+    .empty-state { text-align: center; color: #555; padding: 60px 20px; }
+    .empty-state .e-icon { font-size: 52px; display: block; margin-bottom: 24px; }
+    .empty-state .e-msg  { font-size: 14px; line-height: 2.5; color: #555; }
+
+    /* ══════════ RESPONSIVE ══════════ */
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .recipe-wrap { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+      .recipe-btn { font-size: 10px; padding: 9px 10px; }
+      header h1 { font-size: 16px; }
+    }
+    @media (max-width: 640px) {
+      :root { --slot-sz: 72px; --slot-icon: 26px; --slot-lbl: 9px; }
+      header h1 { font-size: 12px; letter-spacing: 1px; }
+      .recipe-title { font-size: 14px; }
+      .tool-badge   { font-size: 10px; }
+      .cat-title    { font-size: 11px; }
+      .recipe-btn   { font-size: 9px; padding: 8px 9px; }
+      .craft-area  { flex-direction: column; align-items: center; }
+      .simple-area { flex-direction: column; align-items: center; }
+      .craft-arrow { display: inline-block; transform: rotate(90deg); }
+      .result-slot { width: 84px; height: 84px; }
+      .result-slot .r-icon { font-size: 32px; }
+      .result-slot .r-name { font-size: 9px; }
+      .big-slot    { width: 88px; height: 88px; }
+      .big-result  { width: 90px; height: 90px; }
+      .big-slot .b-icon, .big-result .b-icon { font-size: 32px; }
+      .big-slot .b-name { font-size: 10px; }
+      .big-result .b-name { font-size: 9px; }
+      .total-card  { min-width: 160px; padding: 13px 14px; }
+      .tc-icon  { font-size: 30px; }
+      .tc-name  { font-size: 11px; }
+      .tc-total { font-size: 22px; }
+      .totals-header h3 { font-size: 12px; }
+      .totals-meta      { font-size: 10px; }
+    }
+    @media (max-width: 420px) {
+      :root { --slot-sz: 60px; --slot-icon: 22px; --slot-lbl: 8px; }
+      header h1 { font-size: 10px; }
+      .recipe-title { font-size: 12px; }
+      .tc-name  { font-size: 10px; }
+      .tc-total { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>&#x2764; 야부리들의 요리 공방소 &#x2764;</h1>
+</header>
+
+<div class="layout">
+
+  <aside class="sidebar mc-panel">
+    <div class="cat-section">
+      <div class="cat-title">&#x1F527; 부재료</div>
+      <div class="recipe-wrap" id="sub-list"></div>
+    </div>
+    <div class="cat-section">
+      <div class="cat-title">&#x1F37D; 메인 요리</div>
+      <div class="recipe-wrap" id="main-list"></div>
+    </div>
+  </aside>
+
+  <main class="main mc-panel" id="main-content">
+    <div class="empty-state">
+      <span class="e-icon">&#x1F373;</span>
+      <div class="e-msg">좌측에서 요리를 선택하세요.</div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   도구 정보
+════════════════════════════════════════════════════ */
+const TOOL = {
+  "제작대":   { icon: "🪵", simple: false },
+  "냄비":     { icon: "🍲", simple: false, hasBowl: true },
+  "도마":     { icon: "🔪", simple: true },
+  "화로":     { icon: "🔥", simple: true },
+  "프라이팬": { icon: "🍳", simple: true },
+};
+
+/* ════════════════════════════════════════════════════
+   레시피 데이터
+   슬롯 번호: 왼쪽→오른쪽, 위→아래 (1=왼쪽 상단)
+   냄비 3×2:  [1,2,3] / [4,5,6]
+   제작대 3×3: [1,2,3] / [4,5,6] / [7,8,9]
+════════════════════════════════════════════════════ */
+const RECIPES = [
+  /* ── 부재료 ─────────────────────────────────── */
+  {
+    id:"flour_dough", name:"밀가루 반죽", category:"sub", tool:"제작대",
+    result:{ icon:"🫓", name:"밀가루 반죽", qty:1 },
+    slots:{
+      1:{ icon:"🌾", name:"밀",   qty:1 },
+      2:{ icon:"🌾", name:"밀",   qty:1 },
+      4:{ icon:"🌾", name:"밀",   qty:1 },
+      5:{ icon:"🥚", name:"계란", qty:1 },
+    },
+  },
+  {
+    id:"minced_beef", name:"다진 소고기", category:"sub", tool:"도마",
+    result:{ icon:"🟤", name:"다진 소고기", qty:2 },
+    input: { icon:"🥩", name:"익히지 않은 소고기", qty:1 },
+  },
+  {
+    id:"beef_patty", name:"소고기 패티", category:"sub", tool:"화로",
+    result:{ icon:"🟫", name:"소고기 패티", qty:1 },
+    input: { icon:"🟤", name:"다진 소고기", qty:1 },
+  },
+  {
+    id:"raw_chicken_piece", name:"닭고기 살점(생)", category:"sub", tool:"도마",
+    result:{ icon:"🍗", name:"익히지 않은 닭고기 살점", qty:2 },
+    input: { icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
+  },
+  {
+    id:"raw_cod_piece", name:"대구 살점(생)", category:"sub", tool:"도마",
+    result:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:2 },
+    input: { icon:"🐟", name:"익히지 않은 대구", qty:1 },
+  },
+  {
+    id:"raw_salmon_piece", name:"연어 살점(생)", category:"sub", tool:"도마",
+    result:{ icon:"🟠", name:"익히지 않은 연어 살점", qty:2 },
+    input: { icon:"🐠", name:"익히지 않은 연어", qty:1 },
+  },
+  {
+    id:"raw_mutton_piece", name:"양고기 살점(생)", category:"sub", tool:"도마",
+    result:{ icon:"🔴", name:"익히지 않은 양고기 살점", qty:2 },
+    input: { icon:"🐑", name:"익히지 않은 양고기", qty:1 },
+  },
+  {
+    id:"cabbage_leaf", name:"양배추 잎", category:"sub", tool:"도마",
+    result:{ icon:"🥬", name:"양배추 잎", qty:2 },
+    input: { icon:"🥦", name:"양배추", qty:1 },
+  },
+  {
+    id:"cooked_mutton", name:"양고기 살점(익힘)", category:"sub", tool:"화로",
+    result:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
+    input: { icon:"🐑", name:"익히지 않은 양고기", qty:1 },
+  },
+  {
+    id:"cooked_chicken", name:"닭고기 살점(익힘)", category:"sub", tool:"화로",
+    result:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
+    input: { icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
+  },
+  {
+    id:"cooked_salmon", name:"연어 살점(익힘)", category:"sub", tool:"화로",
+    result:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+    input: { icon:"🟠", name:"익히지 않은 연어 살점", qty:1 },
+  },
+  {
+    id:"fried_egg", name:"계란 후라이", category:"sub", tool:"프라이팬",
+    result:{ icon:"🍳", name:"계란 후라이", qty:1 },
+    input: { icon:"🥚", name:"계란", qty:1 },
+  },
+
+  /* ── 메인 요리 ───────────────────────────────── */
+  {
+    id:"hamburger", name:"햄버거", category:"main", tool:"냄비",
+    result:{ icon:"🍔", name:"햄버거", qty:1 },
+    slots:{
+      1:{ icon:"🫓", name:"밀가루 반죽", qty:1 },
+      2:{ icon:"🫓", name:"밀가루 반죽", qty:1 },
+      3:{ icon:"🟫", name:"소고기 패티", qty:1 },
+      4:{ icon:"🥬", name:"양배추 조각", qty:1 },
+      5:{ icon:"🔩", name:"철 주괴",     qty:1 },
+      6:{ icon:"🐡", name:"복어",        qty:1 },
+    },
+    bowl:{ icon:"🥣", name:"그릇" },
+  },
+  {
+    id:"mandu", name:"만두", category:"main", tool:"냄비",
+    result:{ icon:"🥟", name:"만두", qty:1 },
+    slots:{
+      1:{ icon:"🫓", name:"밀가루 반죽",             qty:1 },
+      2:{ icon:"🍗", name:"익히지 않은 닭고기 조각",  qty:1 },
+      3:{ icon:"🍗", name:"익히지 않은 닭고기 조각",  qty:1 },
+      4:{ icon:"🟣", name:"비트",                    qty:1 },
+      5:{ icon:"🟣", name:"비트",                    qty:1 },
+      6:{ icon:"🔵", name:"익히지 않은 대구 살점",    qty:1 },
+    },
+    bowl:{ icon:"🥣", name:"그릇" },
+  },
+  {
+    id:"sandwich", name:"샌드위치", category:"main", tool:"냄비",
+    result:{ icon:"🥪", name:"샌드위치", qty:1 },
+    slots:{
+      1:{ icon:"🫓", name:"밀가루 반죽",          qty:1 },
+      2:{ icon:"🫓", name:"밀가루 반죽",          qty:1 },
+      3:{ icon:"🍳", name:"계란 후라이",          qty:1 },
+      4:{ icon:"🍳", name:"계란 후라이",          qty:1 },
+      5:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:1 },
+      6:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:1 },
+    },
+    bowl:{ icon:"🥣", name:"그릇" },
+  },
+  {
+    id:"cabbage_wrap", name:"양배추 쌈", category:"main", tool:"냄비",
+    result:{ icon:"🫔", name:"양배추 쌈", qty:1 },
+    slots:{
+      1:{ icon:"🥬", name:"양배추 잎",       qty:1 },
+      2:{ icon:"🥬", name:"양배추 잎",       qty:1 },
+      3:{ icon:"🐡", name:"복어",            qty:1 },
+      4:{ icon:"🐡", name:"복어",            qty:1 },
+      5:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
+      6:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
+    },
+    bowl:{ icon:"🥣", name:"그릇" },
+  },
+  {
+    id:"salad", name:"샐러드", category:"main", tool:"냄비",
+    result:{ icon:"🥗", name:"샐러드", qty:1 },
+    slots:{
+      1:{ icon:"🟣", name:"비트",             qty:1 },
+      2:{ icon:"🟣", name:"비트",             qty:1 },
+      3:{ icon:"🥬", name:"양배추 잎",        qty:1 },
+      4:{ icon:"🍖", name:"익힌 닭고기 살점",  qty:1 },
+      5:{ icon:"🍣", name:"익힌 연어 살점",    qty:1 },
+      6:{ icon:"🍣", name:"익힌 연어 살점",    qty:1 },
+    },
+    bowl:{ icon:"🥣", name:"그릇" },
+  },
+];
+
+/* ════════════════════════════════════════════════════
+   상태
+════════════════════════════════════════════════════ */
+let activeId   = null;
+let targetQty  = 1;
+let expandedSet = new Set(); // 펼쳐진 재료 카드 이름 목록
+
+/* ════════════════════════════════════════════════════
+   헬퍼
+════════════════════════════════════════════════════ */
+// 재료 이름으로 부재료 레시피 찾기
+function findSubRecipe(name) {
+  return RECIPES.find(r => r.category === "sub" && r.result.name === name);
+}
+
+// 레시피의 재료를 이름 기준으로 집계
+function collect(r) {
+  const map = {};
+  function add(icon, name, qty, bowl) {
+    if (!map[name]) map[name] = { icon, name, base: 0, bowl: !!bowl };
+    map[name].base += qty;
+  }
+  if (r.slots) Object.values(r.slots).forEach(s => add(s.icon, s.name, s.qty));
+  if (r.input)  add(r.input.icon,  r.input.name,  r.input.qty);
+  if (r.bowl)   add(r.bowl.icon,   r.bowl.name,   1, true);
+  return Object.values(map);
+}
+
+// 슬롯 배치 순서: 왼쪽→오른쪽
+function slotOrder(tool) {
+  return tool === "냄비"
+    ? [[1,2,3],[4,5,6]]
+    : [[1,2,3],[4,5,6],[7,8,9]];
+}
+
+/* ════════════════════════════════════════════════════
+   사이드바
+════════════════════════════════════════════════════ */
+function renderSidebar() {
+  ["sub","main"].forEach(cat => {
+    document.getElementById(cat + "-list").innerHTML = RECIPES
+      .filter(r => r.category === cat)
+      .map(r => `<button class="recipe-btn" id="btn-${r.id}" onclick="pick('${r.id}')">${r.name}</button>`)
+      .join("");
+  });
+}
+
+function pick(id) {
+  activeId  = id;
+  targetQty = 1;
+  expandedSet.clear();
+  document.querySelectorAll(".recipe-btn").forEach(b => b.classList.remove("active"));
+  const btn = document.getElementById("btn-" + id);
+  if (btn) btn.classList.add("active");
+  renderMain();
+}
+
+/* ════════════════════════════════════════════════════
+   수량 조절
+════════════════════════════════════════════════════ */
+function changeQty(d) {
+  targetQty = Math.max(1, targetQty + d);
+  const el = document.getElementById("qty-num");
+  if (el) el.value = targetQty;
+  refreshTotals();
+}
+function onQtyChange(e) {
+  targetQty = Math.max(1, parseInt(e.target.value) || 1);
+  e.target.value = targetQty;
+  refreshTotals();
+}
+
+/* ════════════════════════════════════════════════════
+   부재료 펼치기 토글
+════════════════════════════════════════════════════ */
+function toggleSub(event, ingName) {
+  event.stopPropagation();
+  if (expandedSet.has(ingName)) expandedSet.delete(ingName);
+  else expandedSet.add(ingName);
+  refreshTotals();
+}
+
+/* ════════════════════════════════════════════════════
+   총량 카드 갱신
+════════════════════════════════════════════════════ */
+function refreshTotals() {
+  const r = RECIPES.find(x => x.id === activeId);
+  if (!r) return;
+  const metaEl = document.getElementById("totals-meta");
+  const gridEl = document.getElementById("totals-grid");
+  if (!metaEl || !gridEl) return;
+
+  const crafts = Math.ceil(targetQty / r.result.qty);
+  const actual = crafts * r.result.qty;
+
+  metaEl.innerHTML =
+    `목표 <span class="hi">${targetQty}개</span> → ${crafts}회 제작 → 실제 생산 <span class="hi">${actual}개</span>`;
+
+  gridEl.innerHTML = collect(r).map(ing => {
+    const total    = ing.base * crafts;
+    const subR     = findSubRecipe(ing.name);
+    const expanded = expandedSet.has(ing.name);
+
+    const expandBtn = subR
+      ? `<button class="expand-btn${expanded ? " open" : ""}"
+           onclick="toggleSub(event,'${CSS.escape(ing.name)}')"
+           title="원재료 보기">${expanded ? "▼" : "▶"}</button>`
+      : "";
+
+    // 부재료 원재료 패널
+    let subPanelHtml = "";
+    if (subR && expanded) {
+      const subCrafts = Math.ceil(total / subR.result.qty);
+      const ti = TOOL[subR.tool];
+      const subIngs = collect(subR);
+      subPanelHtml = `
+        <div class="sub-panel">
+          <div class="sp-title">${ti.icon} ${subR.tool} &nbsp;${subCrafts}회 제작 기준</div>
+          <div class="sp-rows">
+            ${subIngs.map(si => `
+              <div class="sp-row">
+                <span class="sp-icon">${si.icon}</span>
+                <span class="sp-name">${si.name}</span>
+                <span class="sp-qty">${si.base * subCrafts}개</span>
+              </div>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="total-card${ing.bowl ? " bowl-card" : ""}">
+        <div class="card-top">
+          <span class="tc-icon">${ing.icon}</span>
+          <div class="tc-info">
+            <span class="tc-name">${ing.name}</span>
+            <span class="tc-formula">${ing.base}개 × ${crafts}회</span>
+            <span class="tc-total">${total}개</span>
+          </div>
+          ${expandBtn}
+        </div>
+        ${subPanelHtml}
+      </div>`;
+  }).join("");
+}
+
+/* ════════════════════════════════════════════════════
+   그리드 도구 렌더 (제작대 / 냄비)
+════════════════════════════════════════════════════ */
+function gridSection(r) {
+  const ti    = TOOL[r.tool];
+  const order = slotOrder(r.tool);
+  const gcls  = r.tool === "냄비" ? "grid-3x2" : "grid-3x3";
+
+  const slotsHtml = order.map(row =>
+    row.map(n => {
+      const s = r.slots[n];
+      return s
+        ? `<div class="slot filled" data-tip="${s.name}">
+             <span class="slot-num">${n}</span>
+             <span class="item-icon">${s.icon}</span>
+             <span class="item-name">${s.name}</span>
+           </div>`
+        : `<div class="slot"><span class="slot-num">${n}</span></div>`;
+    }).join("")
+  ).join("");
+
+  const bowlHtml = r.bowl ? `
+    <div class="bowl-area">
+      <div class="bowl-divider"></div>
+      <div class="bowl-label">&#x1F4E5; 담는 그릇</div>
+      <div class="slot bowl filled" data-tip="${r.bowl.name}">
+        <span class="item-icon">${r.bowl.icon}</span>
+        <span class="item-name">${r.bowl.name}</span>
+      </div>
+    </div>` : "";
+
+  return `
+    <div class="craft-area">
+      <div class="grid-wrap">
+        <div class="grid-label">${ti.icon} ${r.tool}</div>
+        <div class="${gcls}">${slotsHtml}</div>
+        ${bowlHtml}
+      </div>
+      <div class="craft-arrow">&#x27A1;</div>
+      <div class="result-area">
+        <div class="result-slot">
+          <span class="r-icon">${r.result.icon}</span>
+          <span class="r-name">${r.result.name}</span>
+        </div>
+        <div class="qty-wrap">
+          <div class="qty-label">목표 수량</div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty(-1)">&#x2212;</button>
+            <input id="qty-num" class="qty-num" type="number" value="1" min="1" oninput="onQtyChange(event)">
+            <button class="qty-btn" onclick="changeQty(1)">&#x2B;</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ════════════════════════════════════════════════════
+   단순 도구 렌더 (도마 / 화로 / 프라이팬)
+════════════════════════════════════════════════════ */
+function simpleSection(r) {
+  const ti = TOOL[r.tool];
+  return `
+    <div class="simple-area">
+      <div class="big-slot">
+        <span class="b-icon">${r.input.icon}</span>
+        <span class="b-name">${r.input.name}</span>
+      </div>
+      <div class="craft-arrow">&#x27A1;</div>
+      <div class="tool-mid" title="${r.tool}">${ti.icon}</div>
+      <div class="craft-arrow">&#x27A1;</div>
+      <div class="simple-right">
+        <div class="big-result">
+          <span class="b-icon">${r.result.icon}</span>
+          <span class="b-name">${r.result.name}</span>
+          <span class="b-per">× ${r.result.qty} / 1회</span>
+        </div>
+        <div class="qty-wrap">
+          <div class="qty-label">목표 수량</div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty(-1)">&#x2212;</button>
+            <input id="qty-num" class="qty-num" type="number" value="1" min="1" oninput="onQtyChange(event)">
+            <button class="qty-btn" onclick="changeQty(1)">&#x2B;</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ════════════════════════════════════════════════════
+   메인 렌더
+════════════════════════════════════════════════════ */
+function renderMain() {
+  const r  = RECIPES.find(x => x.id === activeId);
+  if (!r) return;
+  const ti = TOOL[r.tool];
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="recipe-header">
+      <span class="recipe-title">${r.result.icon}&nbsp;${r.name}</span>
+      <span class="tool-badge">${ti.icon} ${r.tool}</span>
+    </div>
+
+    ${ti.simple ? simpleSection(r) : gridSection(r)}
+
+    <div class="section-divider"></div>
+
+    <div class="totals-section">
+      <div class="totals-header">
+        <h3>&#x1F4E6; 필요 재료 총량</h3>
+        <div class="totals-meta" id="totals-meta"></div>
+      </div>
+      <div class="totals-grid" id="totals-grid"></div>
+    </div>
+  `;
+
+  refreshTotals();
+}
+
+renderSidebar();
+</script>
+</body>
+</html>
