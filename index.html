@@ -404,12 +404,12 @@
       pointer-events: none; z-index: 0;
     }
   </style>
-  <link rel="stylesheet" href="./minecraft-theme.css">
+  <link rel="stylesheet" href="./minecraft-theme.css?v=20260502-bgm">
 </head>
 <body>
 
 <canvas id="bg-canvas"></canvas>
-<audio id="bgm-audio" src="./maple_bgm.mp3" loop preload="auto"></audio>
+<audio id="bgm-audio" src="./maple_bgm.mp3?v=20260502-bgm" loop preload="auto"></audio>
 <button id="bgm-toggle" class="bgm-toggle" type="button" aria-pressed="false" aria-label="BGM 켜기">
   <span class="bgm-dot" aria-hidden="true"></span>
   <span id="bgm-label">BGM 켜는 중</span>
@@ -1068,6 +1068,7 @@ refreshTotals = function () {
   const toggle = document.getElementById('bgm-toggle');
   const label = document.getElementById('bgm-label');
   if (!audio || !toggle || !label) return;
+  let userPaused = false;
 
   function setState(isPlaying, blocked) {
     toggle.classList.toggle('is-playing', isPlaying);
@@ -1088,8 +1089,10 @@ refreshTotals = function () {
 
   toggle.addEventListener('click', function () {
     if (audio.paused) {
+      userPaused = false;
       playBgm(false);
     } else {
+      userPaused = true;
       audio.pause();
       setState(false, false);
     }
@@ -1098,6 +1101,10 @@ refreshTotals = function () {
   audio.addEventListener('play', function () { setState(true, false); });
   audio.addEventListener('pause', function () { setState(false, false); });
   window.addEventListener('DOMContentLoaded', function () { playBgm(true); });
+  document.addEventListener('pointerdown', function (ev) {
+    if (!audio.paused || userPaused || ev.target.closest('.bgm-toggle')) return;
+    playBgm(false);
+  }, { once: false });
 })();
 
 renderSidebar();
