@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>야부리들의 요리 공방소</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --slot-sz:   96px;
@@ -23,9 +23,9 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: #111;
-      color: #fff;
-      font-family: 'Press Start 2P', monospace;
+      background: #FAF5ED;
+      color: #2A1A0A;
+      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
       font-size: 13px;
       min-height: 100vh;
     }
@@ -398,13 +398,30 @@
       .tc-name  { font-size: 10px; }
       .tc-total { font-size: 20px; }
     }
+    #bg-canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
   </style>
   <link rel="stylesheet" href="./minecraft-theme.css">
 </head>
 <body>
 
+<canvas id="bg-canvas"></canvas>
+<audio id="bgm-audio" src="./maple_bgm.mp3" loop preload="auto"></audio>
+<button id="bgm-toggle" class="bgm-toggle" type="button" aria-pressed="false" aria-label="BGM 켜기">
+  <span class="bgm-dot" aria-hidden="true"></span>
+  <span id="bgm-label">BGM 켜는 중</span>
+</button>
+
 <header>
-  <h1>&#x2764; 야부리들의 요리 공방소 &#x2764;</h1>
+  <div class="header-stars" id="header-stars"></div>
+  <div class="header-inner">
+    <span class="header-eyebrow">✦ Recipe Workshop ✦</span>
+    <h1>야부리들의 요리 공방소</h1>
+    <p class="header-tagline">레시피 탐색 &middot; 재료 수량 계산 &middot; 나만의 분량 설정</p>
+  </div>
 </header>
 
 <div class="layout">
@@ -639,6 +656,12 @@ function findSubRecipe(name) {
   return RECIPES.find(r => r.category === "sub" && r.result.name === name);
 }
 
+// 재료 이름으로 해당 레시피 페이지로 이동
+function pickByName(name) {
+  const r = findSubRecipe(name);
+  if (r) pick(r.id);
+}
+
 // 레시피의 재료를 이름 기준으로 집계
 function collect(r) {
   const map = {};
@@ -783,13 +806,14 @@ function gridSection(r) {
   const slotsHtml = order.map(row =>
     row.map(n => {
       const s = r.slots[n];
-      return s
-        ? `<div class="slot filled" data-tip="${s.name}">
-             <span class="slot-num">${n}</span>
-             <span class="item-icon">${s.icon}</span>
-             <span class="item-name">${s.name}</span>
-           </div>`
-        : `<div class="slot"><span class="slot-num">${n}</span></div>`;
+      if (!s) return `<div class="slot"><span class="slot-num">${n}</span></div>`;
+      const sub = findSubRecipe(s.name);
+      return `<div class="slot filled${sub ? ' slot-link' : ''}" data-tip="${s.name}"${sub ? ` onclick="pickByName('${s.name}')"` : ''}>
+                 ${sub ? '<span class="slot-link-badge">↗</span>' : ''}
+                 <span class="slot-num">${n}</span>
+                 <span class="item-icon">${s.icon}</span>
+                 <span class="item-name">${s.name}</span>
+               </div>`;
     }).join("")
   ).join("");
 
@@ -833,9 +857,11 @@ function gridSection(r) {
 ════════════════════════════════════════════════════ */
 function simpleSection(r) {
   const ti = TOOL[r.tool];
+  const subInput = findSubRecipe(r.input.name);
   return `
     <div class="simple-area">
-      <div class="big-slot">
+      <div class="big-slot${subInput ? ' slot-link' : ''}"${subInput ? ` onclick="pickByName('${r.input.name}')"` : ''}>
+        ${subInput ? '<span class="slot-link-badge">↗</span>' : ''}
         <span class="b-icon">${r.input.icon}</span>
         <span class="b-name">${r.input.name}</span>
       </div>
@@ -890,6 +916,189 @@ function renderMain() {
 
   refreshTotals();
 }
+
+/* ════════════════════════════════════════════════════
+   배경 캔버스 파티클 시스템
+════════════════════════════════════════════════════ */
+(function () {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  const EMOJIS = ['⭐','✨','💫','🌾','🥚','🍖','🐟','🥬','🔥','🌿','🍃','💛'];
+  const COUNT  = 28;
+  let W, H, pts = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function mkPt() {
+    return {
+      x: Math.random() * (W || 800),
+      y: Math.random() * (H || 600),
+      em: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+      sz: 10 + Math.random() * 14,
+      vx: (Math.random() - .5) * .25,
+      vy: -.15 - Math.random() * .32,
+      a:  .04 + Math.random() * .09,
+      rot: Math.random() * Math.PI * 2,
+      rs: (Math.random() - .5) * .018,
+    };
+  }
+
+  for (let i = 0; i < COUNT; i++) pts.push(mkPt());
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of pts) {
+      ctx.save();
+      ctx.globalAlpha = p.a;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.font = p.sz + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.em, 0, 0);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.rs;
+      if (p.y < -40) { p.y = H + 40; p.x = Math.random() * W; }
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+})();
+
+/* ════════════════════════════════════════════════════
+   헤더 픽셀 별
+════════════════════════════════════════════════════ */
+(function () {
+  const c = document.getElementById('header-stars');
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('div');
+    s.className = 'h-star';
+    const sz = 3 + Math.random() * 5;
+    s.style.cssText =
+      `width:${sz}px;height:${sz}px;` +
+      `left:${Math.random()*100}%;top:${Math.random()*72}%;` +
+      `--dur:${1.4+Math.random()*2.4}s;--del:${-(Math.random()*3)}s;`;
+    c.appendChild(s);
+  }
+})();
+
+/* ════════════════════════════════════════════════════
+   슬롯 드롭인 애니메이션
+════════════════════════════════════════════════════ */
+function animateSlots() {
+  const slots = document.querySelectorAll('#main-content .slot.filled');
+  slots.forEach(function (sl, i) {
+    sl.classList.remove('drop-in');
+    void sl.offsetWidth;
+    setTimeout(function () { sl.classList.add('drop-in'); }, i * 65);
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   카드 슬라이드인 애니메이션
+════════════════════════════════════════════════════ */
+function animateCards() {
+  document.querySelectorAll('.total-card').forEach(function (card, i) {
+    card.style.animationDelay = (i * .072) + 's';
+    card.classList.add('visible');
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   숫자 카운트업
+════════════════════════════════════════════════════ */
+function countUp(el, target, dur) {
+  dur = dur || 420;
+  const t0 = performance.now();
+  (function tick(now) {
+    const p = Math.min((now - t0) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * e) + '개';
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+/* ════════════════════════════════════════════════════
+   리플 효과
+════════════════════════════════════════════════════ */
+document.addEventListener('click', function (ev) {
+  const btn = ev.target.closest('.recipe-btn,.qty-btn,.expand-btn,.bgm-toggle');
+  if (!btn) return;
+  const rp = document.createElement('span');
+  rp.className = 'ripple';
+  const rc = btn.getBoundingClientRect();
+  const sz = Math.max(rc.width, rc.height);
+  rp.style.cssText =
+    'width:' + sz + 'px;height:' + sz + 'px;' +
+    'left:' + (ev.clientX - rc.left - sz / 2) + 'px;' +
+    'top:'  + (ev.clientY - rc.top  - sz / 2) + 'px;';
+  btn.appendChild(rp);
+  rp.addEventListener('animationend', function () { rp.remove(); });
+});
+
+/* ════════════════════════════════════════════════════
+   renderMain / refreshTotals 후처리 훅
+════════════════════════════════════════════════════ */
+const _origRenderMain = renderMain;
+renderMain = function () {
+  _origRenderMain();
+  setTimeout(animateSlots, 40);
+};
+
+const _origRefreshTotals = refreshTotals;
+refreshTotals = function () {
+  _origRefreshTotals();
+  setTimeout(function () {
+    animateCards();
+    document.querySelectorAll('.tc-total').forEach(function (el) {
+      const raw = parseInt(el.textContent);
+      if (!isNaN(raw) && raw > 0) countUp(el, raw);
+    });
+  }, 40);
+};
+
+(function () {
+  const audio = document.getElementById('bgm-audio');
+  const toggle = document.getElementById('bgm-toggle');
+  const label = document.getElementById('bgm-label');
+  if (!audio || !toggle || !label) return;
+
+  function setState(isPlaying, blocked) {
+    toggle.classList.toggle('is-playing', isPlaying);
+    toggle.classList.toggle('is-blocked', !!blocked);
+    toggle.setAttribute('aria-pressed', String(isPlaying));
+    label.textContent = isPlaying ? 'BGM 끄기' : 'BGM 켜기';
+    toggle.setAttribute('aria-label', isPlaying ? 'BGM 끄기' : 'BGM 켜기');
+  }
+
+  async function playBgm(blockedLabel) {
+    try {
+      await audio.play();
+      setState(true, false);
+    } catch (err) {
+      setState(false, !!blockedLabel);
+    }
+  }
+
+  toggle.addEventListener('click', function () {
+    if (audio.paused) {
+      playBgm(false);
+    } else {
+      audio.pause();
+      setState(false, false);
+    }
+  });
+
+  audio.addEventListener('play', function () { setState(true, false); });
+  audio.addEventListener('pause', function () { setState(false, false); });
+  window.addEventListener('DOMContentLoaded', function () { playBgm(true); });
+})();
 
 renderSidebar();
 pick("hamburger");
