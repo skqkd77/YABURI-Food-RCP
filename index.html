@@ -3,35 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>야부리들의 요리 공방소</title>
+  <title>야부리들의 요리 공방</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* base reset — overridden by minecraft-theme.css */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { background: #F1F5F9; min-height: 100vh; }
     #bg-canvas { display: none; }
   </style>
-  <link rel="stylesheet" href="./minecraft-theme.css?v=20260505-premium">
+  <link rel="stylesheet" href="./minecraft-theme.css?v=20260505-images">
 </head>
 <body>
 
 <canvas id="bg-canvas"></canvas>
 
-<!-- 초기 안내 팝업 -->
 <div class="notice-overlay" id="notice-overlay" role="dialog" aria-modal="true" aria-labelledby="notice-title">
   <div class="notice-modal">
     <div class="notice-stripe"></div>
     <div class="notice-body-wrap">
-      <span class="notice-icon">⚠️</span>
-      <h2 class="notice-title" id="notice-title">서비스 안내</h2>
-      <p class="notice-tag">베타 서비스 운영 중</p>
-      <p class="notice-desc">현재 서버 오픈 초기 단계입니다.<br>정식 오픈 이후 레시피 내용이 변경될 수 있으며,<br>일부 수치가 실제와 다를 수 있습니다.</p>
+      <span class="notice-icon">📌</span>
+      <h2 class="notice-title" id="notice-title">레시피 수정 안내</h2>
+      <p class="notice-tag">현재 레시피 수정 중입니다.</p>
+      <p class="notice-desc">실제 서버의 레시피와 상이할 수 있습니다.</p>
       <button class="notice-btn" id="notice-close">확인했습니다</button>
     </div>
   </div>
 </div>
+
 <audio id="bgm-audio" src="./maple_bgm.mp3?v=20260502-bgm" loop preload="auto"></audio>
 <button id="bgm-toggle" class="bgm-toggle" type="button" aria-pressed="false" aria-label="BGM 켜기">
   <span class="bgm-dot" aria-hidden="true"></span>
@@ -41,14 +40,13 @@
 <header>
   <div class="header-stars" id="header-stars"></div>
   <div class="header-inner">
-    <span class="header-eyebrow">✦ Recipe Workshop ✦</span>
-    <h1>야부리들의 요리 공방소</h1>
-    <p class="header-tagline">레시피 탐색 &middot; 재료 수량 계산 &middot; 나만의 분량 설정</p>
+    <span class="header-eyebrow">Recipe Workshop</span>
+    <h1>야부리들의 요리 공방</h1>
+    <p class="header-tagline">레시피 탐색 &middot; 재료 수량 계산 &middot; 원하는 분량 설정</p>
   </div>
 </header>
 
 <div class="layout">
-
   <aside class="sidebar mc-panel">
     <div class="cat-section">
       <div class="cat-title cat-main">&#x1F37D; 메인 요리</div>
@@ -67,109 +65,158 @@
   <main class="main mc-panel" id="main-content">
     <div class="empty-state">
       <span class="e-icon">&#x1F373;</span>
-      <div class="e-msg">좌측에서 요리를 선택하세요.</div>
+      <div class="e-msg">왼쪽에서 요리를 선택하세요.</div>
     </div>
   </main>
-
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════
-   도구 정보
-════════════════════════════════════════════════════ */
 const TOOL = {
-  "제작대":   { icon: "🪵", simple: false },
+  "제작대":   { icon: "⚒", simple: false },
   "냄비":     { icon: "🍲", simple: false, hasBowl: true },
   "도마":     { icon: "🔪", simple: true },
   "화로":     { icon: "🔥", simple: true },
   "프라이팬": { icon: "🍳", simple: true },
 };
 
-/* ════════════════════════════════════════════════════
-   레시피 데이터
-   슬롯 번호: 왼쪽→오른쪽, 위→아래 (1=왼쪽 상단)
-   냄비 3×2:  [1,2,3] / [4,5,6]
-   제작대 3×3: [1,2,3] / [4,5,6] / [7,8,9]
-════════════════════════════════════════════════════ */
+const IMAGE_FILES = [
+  "계란 샌드위치.png",
+  "계란 프라이.png",
+  "그릇.png",
+  "다진 소고기.png",
+  "달걀.png",
+  "냄비.png",
+  "도마.png",
+  "막대기.png",
+  "만두.png",
+  "밀.png",
+  "바베큐 꼬치.png",
+  "밀가루 반죽.png",
+  "복어.png",
+  "비트.png",
+  "샐러드.png",
+  "양배추 잎.png",
+  "양배추 쌈.png",
+  "양배추.png",
+  "익히지 않은 닭고기 살점.png",
+  "익히지 않은 닭고기.png",
+  "익히지 않은 대구 살점.png",
+  "익히지 않은 대구.png",
+  "익히지 않은 돼지고기.png",
+  "익히지 않은 소고기.png",
+  "익히지 않은 연어 살점.png",
+  "익히지 않은 연어.png",
+  "익힌 닭고기 살점.png",
+  "익힌 대구 살점.png",
+  "익힌 돼지고기.png",
+  "익힌 연어 살점.png",
+  "프라이팬.png",
+  "햄버거.png",
+];
+
+const IMAGE_ALIASES = {
+  "계란": "달걀.png",
+  "계란 후라이": "계란 프라이.png",
+  "달걀 샌드위치": "계란 샌드위치.png",
+  "소고기 패티": "다진 소고기.png",
+  "익힌 돼지고기": "익힌 돼지고기.png",
+  "바비큐 꼬치": "바베큐 꼬치.png",
+};
+
+const TOOL_IMAGES = {
+  "냄비": "images/냄비.png",
+  "도마": "images/도마.png",
+  "프라이팬": "images/프라이팬.png",
+  "화로": "images/냄비.png",
+  "제작대": "images/제작대.jpg",
+};
+
 const RECIPES = [
-  /* ── 부재료 ─────────────────────────────────── */
   {
     id:"flour_dough", name:"밀가루 반죽", category:"sub1", tool:"제작대",
-    result:{ icon:"🫓", name:"밀가루 반죽", qty:3 },
+    result:{ icon:"🌾", name:"밀가루 반죽", qty:3 },
     slots:{
-      1:{ icon:"🌾", name:"밀",   qty:1 },
-      2:{ icon:"🌾", name:"밀",   qty:1 },
-      4:{ icon:"🌾", name:"밀",   qty:1 },
+      1:{ icon:"🌾", name:"밀", qty:1 },
+      2:{ icon:"🌾", name:"밀", qty:1 },
+      4:{ icon:"🌾", name:"밀", qty:1 },
       5:{ icon:"🥚", name:"계란", qty:1 },
     },
   },
   {
     id:"minced_beef", name:"다진 소고기", category:"sub1", tool:"도마",
-    result:{ icon:"🟤", name:"다진 소고기", qty:2 },
-    input: { icon:"🥩", name:"익히지 않은 소고기", qty:1 },
-  },
-  {
-    id:"beef_patty", name:"소고기 패티", category:"sub2", tool:"화로",
-    result:{ icon:"🟫", name:"소고기 패티", qty:1 },
-    input: { icon:"🟤", name:"다진 소고기", qty:1 },
+    result:{ icon:"🥩", name:"다진 소고기", qty:2 },
+    input:{ icon:"🥩", name:"익히지 않은 소고기", qty:1 },
   },
   {
     id:"raw_chicken_piece", name:"익히지 않은 닭고기 살점", category:"sub1", tool:"도마",
     result:{ icon:"🍗", name:"익히지 않은 닭고기 살점", qty:2 },
-    input: { icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
+    input:{ icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
   },
   {
     id:"raw_cod_piece", name:"익히지 않은 대구 살점", category:"sub1", tool:"도마",
-    result:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:2 },
-    input: { icon:"🐟", name:"익히지 않은 대구", qty:1 },
+    result:{ icon:"🐟", name:"익히지 않은 대구 살점", qty:2 },
+    input:{ icon:"🐟", name:"익히지 않은 대구", qty:1 },
   },
   {
     id:"raw_salmon_piece", name:"익히지 않은 연어 살점", category:"sub1", tool:"도마",
-    result:{ icon:"🟠", name:"익히지 않은 연어 살점", qty:2 },
-    input: { icon:"🐠", name:"익히지 않은 연어", qty:1 },
+    result:{ icon:"🐟", name:"익히지 않은 연어 살점", qty:2 },
+    input:{ icon:"🐟", name:"익히지 않은 연어", qty:1 },
+  },
+  {
+    id:"cooked_pork", name:"익힌 돼지고기", category:"sub1", tool:"화로",
+    result:{ icon:"🥓", name:"익힌 돼지고기", qty:1 },
+    input:{ icon:"🥩", name:"익히지 않은 소고기", qty:1 },
   },
   {
     id:"raw_mutton_piece", name:"익히지 않은 양고기 살점", category:"sub1", tool:"도마",
-    result:{ icon:"🔴", name:"익히지 않은 양고기 살점", qty:2 },
-    input: { icon:"🐑", name:"익히지 않은 양고기", qty:1 },
+    result:{ icon:"🥩", name:"익히지 않은 양고기 살점", qty:2 },
+    input:{ icon:"🐑", name:"익히지 않은 양고기", qty:1 },
   },
   {
     id:"cabbage_leaf", name:"양배추 잎", category:"sub1", tool:"도마",
     result:{ icon:"🥬", name:"양배추 잎", qty:2 },
-    input: { icon:"🥦", name:"양배추", qty:1 },
-  },
-  {
-    id:"cooked_mutton", name:"익힌 양고기 살점", category:"sub2", tool:"화로",
-    result:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
-    input: { icon:"🔴", name:"익히지 않은 양고기 살점", qty:1 },
-  },
-  {
-    id:"cooked_chicken", name:"익힌 닭고기 살점", category:"sub2", tool:"화로",
-    result:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
-    input: { icon:"🍗", name:"익히지 않은 닭고기 살점", qty:1 },
-  },
-  {
-    id:"cooked_salmon", name:"익힌 연어 살점", category:"sub2", tool:"화로",
-    result:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
-    input: { icon:"🟠", name:"익히지 않은 연어 살점", qty:1 },
+    input:{ icon:"🥬", name:"양배추", qty:1 },
   },
   {
     id:"fried_egg", name:"계란 후라이", category:"sub1", tool:"프라이팬",
     result:{ icon:"🍳", name:"계란 후라이", qty:1 },
-    input: { icon:"🥚", name:"계란", qty:1 },
+    input:{ icon:"🥚", name:"계란", qty:1 },
   },
-
-  /* ── 메인 요리 ───────────────────────────────── */
+  {
+    id:"beef_patty", name:"소고기 패티", category:"sub2", tool:"화로",
+    result:{ icon:"🍔", name:"소고기 패티", qty:1 },
+    input:{ icon:"🥩", name:"다진 소고기", qty:1 },
+  },
+  {
+    id:"cooked_mutton", name:"익힌 양고기 살점", category:"sub2", tool:"화로",
+    result:{ icon:"🍖", name:"익힌 양고기 살점", qty:1 },
+    input:{ icon:"🥩", name:"익히지 않은 양고기 살점", qty:1 },
+  },
+  {
+    id:"cooked_chicken", name:"익힌 닭고기 살점", category:"sub2", tool:"화로",
+    result:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
+    input:{ icon:"🍗", name:"익히지 않은 닭고기 살점", qty:1 },
+  },
+  {
+    id:"cooked_cod", name:"익힌 대구 살점", category:"sub2", tool:"화로",
+    result:{ icon:"🐟", name:"익힌 대구 살점", qty:1 },
+    input:{ icon:"🐟", name:"익히지 않은 대구 살점", qty:1 },
+  },
+  {
+    id:"cooked_salmon", name:"익힌 연어 살점", category:"sub2", tool:"화로",
+    result:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+    input:{ icon:"🐟", name:"익히지 않은 연어 살점", qty:1 },
+  },
   {
     id:"hamburger", name:"햄버거", category:"main", tool:"냄비",
     result:{ icon:"🍔", name:"햄버거", qty:1 },
     slots:{
-      1:{ icon:"🫓", name:"밀가루 반죽", qty:1 },
-      2:{ icon:"🫓", name:"밀가루 반죽", qty:1 },
-      3:{ icon:"🟫", name:"소고기 패티", qty:1 },
-      4:{ icon:"🟣", name:"비트",        qty:1 },
-      5:{ icon:"🔩", name:"철 주괴",     qty:1 },
-      6:{ icon:"🐡", name:"복어",        qty:1 },
+      1:{ icon:"🌾", name:"밀가루 반죽", qty:1 },
+      2:{ icon:"🥬", name:"양배추 잎", qty:1 },
+      3:{ icon:"🐡", name:"복어", qty:1 },
+      4:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      5:{ icon:"🍔", name:"소고기 패티", qty:1 },
+      6:{ icon:"🥓", name:"익힌 돼지고기", qty:1 },
     },
     bowl:{ icon:"🥣", name:"그릇" },
   },
@@ -177,25 +224,25 @@ const RECIPES = [
     id:"mandu", name:"만두", category:"main", tool:"냄비",
     result:{ icon:"🥟", name:"만두", qty:1 },
     slots:{
-      1:{ icon:"🫓", name:"밀가루 반죽",             qty:1 },
-      2:{ icon:"🍗", name:"익히지 않은 닭고기 조각",  qty:1 },
-      3:{ icon:"🍗", name:"익히지 않은 닭고기 조각",  qty:1 },
-      4:{ icon:"🟣", name:"비트",                    qty:1 },
-      5:{ icon:"🟣", name:"비트",                    qty:1 },
-      6:{ icon:"🔵", name:"익히지 않은 대구 살점",    qty:1 },
+      1:{ icon:"🌾", name:"밀가루 반죽", qty:1 },
+      2:{ icon:"🟣", name:"비트", qty:1 },
+      3:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      4:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      5:{ icon:"🥓", name:"익힌 돼지고기", qty:1 },
+      6:{ icon:"🥓", name:"익힌 돼지고기", qty:1 },
     },
     bowl:{ icon:"🥣", name:"그릇" },
   },
   {
-    id:"sandwich", name:"샌드위치", category:"main", tool:"냄비",
-    result:{ icon:"🥪", name:"샌드위치", qty:1 },
+    id:"egg_sandwich", name:"달걀 샌드위치", category:"main", tool:"냄비",
+    result:{ icon:"🥪", name:"달걀 샌드위치", qty:1 },
     slots:{
-      1:{ icon:"🫓", name:"밀가루 반죽",          qty:1 },
-      2:{ icon:"🫓", name:"밀가루 반죽",          qty:1 },
-      3:{ icon:"🍳", name:"계란 후라이",          qty:1 },
-      4:{ icon:"🍳", name:"계란 후라이",          qty:1 },
-      5:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:1 },
-      6:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:1 },
+      1:{ icon:"🌾", name:"밀가루 반죽", qty:1 },
+      2:{ icon:"🥬", name:"양배추 잎", qty:1 },
+      3:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      4:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      5:{ icon:"🍳", name:"계란 후라이", qty:1 },
+      6:{ icon:"🍳", name:"계란 후라이", qty:1 },
     },
     bowl:{ icon:"🥣", name:"그릇" },
   },
@@ -203,12 +250,12 @@ const RECIPES = [
     id:"cabbage_wrap", name:"양배추 쌈", category:"main", tool:"냄비",
     result:{ icon:"🫔", name:"양배추 쌈", qty:1 },
     slots:{
-      1:{ icon:"🥬", name:"양배추 잎",       qty:1 },
-      2:{ icon:"🥬", name:"양배추 잎",       qty:1 },
-      3:{ icon:"🐡", name:"복어",            qty:1 },
-      4:{ icon:"🐡", name:"복어",            qty:1 },
-      5:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
-      6:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
+      1:{ icon:"🥬", name:"양배추 잎", qty:1 },
+      2:{ icon:"🥬", name:"양배추 잎", qty:1 },
+      3:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      4:{ icon:"🐟", name:"익힌 대구 살점", qty:1 },
+      5:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
+      6:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
     },
     bowl:{ icon:"🥣", name:"그릇" },
   },
@@ -216,39 +263,56 @@ const RECIPES = [
     id:"salad", name:"샐러드", category:"main", tool:"냄비",
     result:{ icon:"🥗", name:"샐러드", qty:1 },
     slots:{
-      1:{ icon:"🟣", name:"비트",             qty:1 },
-      2:{ icon:"🟣", name:"비트",             qty:1 },
-      3:{ icon:"🥬", name:"양배추 잎",        qty:1 },
-      4:{ icon:"🍖", name:"익힌 닭고기 살점",  qty:1 },
-      5:{ icon:"🍣", name:"익힌 연어 살점",    qty:1 },
-      6:{ icon:"🍣", name:"익힌 연어 살점",    qty:1 },
+      1:{ icon:"🥬", name:"양배추 잎", qty:1 },
+      2:{ icon:"🟣", name:"비트", qty:1 },
+      3:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      4:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
+      5:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
+      6:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
     },
     bowl:{ icon:"🥣", name:"그릇" },
   },
   {
     id:"bbq_skewer", name:"바비큐 꼬치", category:"main", tool:"냄비",
+    hidden:true,
     result:{ icon:"🍢", name:"바비큐 꼬치", qty:1 },
-    slots:{
-      1:{ icon:"🐡", name:"복어",             qty:1 },
-      2:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
-      3:{ icon:"🟫", name:"소고기 패티",      qty:1 },
-      4:{ icon:"🫓", name:"밀가루 반죽",      qty:1 },
-      5:{ icon:"🟨", name:"금 주괴",          qty:1 },
-    },
     bowl:{ icon:"🪵", name:"막대기" },
+  },
+  {
+    id:"malatang", name:"마라샹궈", category:"main", tool:"냄비",
+    hidden:true,
+    result:{ icon:"🍲", name:"마라샹궈", qty:1 },
+    bowl:{ icon:"🥣", name:"그릇" },
   },
 ];
 
-/* ════════════════════════════════════════════════════
-   상태
-════════════════════════════════════════════════════ */
-let activeId   = null;
-let targetQty  = 1;
-let expandedSet = new Set(); // 펼쳐진 재료 카드 이름 목록
+let activeId = null;
+let targetQty = 1;
+let expandedSet = new Set();
 
-/* ════════════════════════════════════════════════════
-   헬퍼
-════════════════════════════════════════════════════ */
+function itemImagePath(name) {
+  const exactPng = `${name}.png`;
+  const exactWebp = `${name}.webp`;
+  const file = IMAGE_FILES.includes(exactPng)
+    ? exactPng
+    : IMAGE_FILES.includes(exactWebp)
+      ? exactWebp
+      : IMAGE_ALIASES[name];
+  return file ? `images/${file}` : "";
+}
+
+function itemVisual(item, className) {
+  const src = itemImagePath(item.name);
+  if (src) return `<img class="${className} item-img" src="${src}" alt="${item.name}" loading="lazy">`;
+  return `<span class="${className}">${item.icon || ""}</span>`;
+}
+
+function toolVisual(tool, className = "tool-icon") {
+  const src = TOOL_IMAGES[tool];
+  if (src) return `<img class="${className} tool-img" src="${src}" alt="${tool}" loading="lazy">`;
+  return `<span class="${className}">${TOOL[tool]?.icon || ""}</span>`;
+}
+
 function toolClass(tool) {
   return {
     "냄비": "tool-pot",
@@ -272,59 +336,49 @@ function toolAmbience(tool) {
     "화로": ["ember", "flame", "smoke", "ember", "flame", "spark"],
     "제작대": ["chip", "saw", "chip", "grid", "chip", "saw"],
   }[tool] || ["chip", "grid", "chip"];
-
   return `<div class="tool-ambience" aria-hidden="true">
     ${labels.map((name, index) => `<span class="fx fx-${name}" style="--i:${index}; --x:${10 + index * 15}%; --drift:${(index - 2) * 12}px"></span>`).join("")}
   </div>`;
 }
 
-// 재료 이름으로 부재료 레시피 찾기
 function findSubRecipe(name) {
   return RECIPES.find(r => (r.category === "sub1" || r.category === "sub2") && r.result.name === name);
 }
 
-// 재료 이름으로 해당 레시피 페이지로 이동
 function pickByName(name) {
   const r = findSubRecipe(name);
   if (r) pick(r.id);
 }
 
-// 레시피의 재료를 이름 기준으로 집계
 function collect(r) {
   const map = {};
-  function add(icon, name, qty, bowl) {
-    if (!map[name]) map[name] = { icon, name, base: 0, bowl: !!bowl };
-    map[name].base += qty;
+  function add(item, qty, bowl) {
+    if (!map[item.name]) map[item.name] = { ...item, base: 0, bowl: !!bowl };
+    map[item.name].base += qty;
   }
-  if (r.slots) Object.values(r.slots).forEach(s => add(s.icon, s.name, s.qty));
-  if (r.input)  add(r.input.icon,  r.input.name,  r.input.qty);
-  if (r.bowl)   add(r.bowl.icon,   r.bowl.name,   1, true);
+  if (r.slots) Object.values(r.slots).forEach(s => add(s, s.qty));
+  if (r.input) add(r.input, r.input.qty);
+  if (r.bowl) add(r.bowl, 1, true);
   return Object.values(map);
 }
 
-// 슬롯 배치 순서: 왼쪽→오른쪽
 function slotOrder(tool) {
-  return tool === "냄비"
-    ? [[1,2,3],[4,5,6]]
-    : [[1,2,3],[4,5,6],[7,8,9]];
+  return tool === "냄비" ? [[1,2,3],[4,5,6]] : [[1,2,3],[4,5,6],[7,8,9]];
 }
 
-/* ════════════════════════════════════════════════════
-   사이드바
-════════════════════════════════════════════════════ */
 function renderSidebar() {
   ["main", "sub1", "sub2"].forEach(cat => {
     const el = document.getElementById(cat + "-list");
     if (!el) return;
     el.innerHTML = RECIPES
       .filter(r => r.category === cat)
-      .map(r => `<button class="recipe-btn" data-cat="${cat}" id="btn-${r.id}" onclick="pick('${r.id}')">${r.name}</button>`)
+      .map(r => `<button class="recipe-btn${r.hidden ? ' hidden-recipe-btn' : ''}" data-cat="${cat}" id="btn-${r.id}" onclick="pick('${r.id}')">${r.hidden ? '&#x1F512; ' : ''}${r.name}</button>`)
       .join("");
   });
 }
 
 function pick(id) {
-  activeId  = id;
+  activeId = id;
   targetQty = 1;
   expandedSet.clear();
   const recipe = RECIPES.find(r => r.id === id);
@@ -335,24 +389,19 @@ function pick(id) {
   renderMain();
 }
 
-/* ════════════════════════════════════════════════════
-   수량 조절
-════════════════════════════════════════════════════ */
 function changeQty(d) {
   targetQty = Math.max(1, targetQty + d);
   const el = document.getElementById("qty-num");
   if (el) el.value = targetQty;
   refreshTotals();
 }
+
 function onQtyChange(e) {
   targetQty = Math.max(1, parseInt(e.target.value) || 1);
   e.target.value = targetQty;
   refreshTotals();
 }
 
-/* ════════════════════════════════════════════════════
-   부재료 펼치기 토글
-════════════════════════════════════════════════════ */
 function toggleSub(event, ingName) {
   event.stopPropagation();
   if (expandedSet.has(ingName)) expandedSet.delete(ingName);
@@ -360,47 +409,55 @@ function toggleSub(event, ingName) {
   refreshTotals();
 }
 
-/* ════════════════════════════════════════════════════
-   총량 카드 갱신
-════════════════════════════════════════════════════ */
+function animateTotalCards() {
+  document.querySelectorAll(".total-card").forEach((card, index) => {
+    card.style.animationDelay = `${index * 0.06}s`;
+    card.classList.add("visible");
+  });
+}
+
+function countUpTotal(el, target, duration = 420) {
+  const start = performance.now();
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = `${Math.round(target * eased)}개`;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function refreshTotals() {
   const r = RECIPES.find(x => x.id === activeId);
-  if (!r) return;
+  if (!r || r.hidden) return;
   const metaEl = document.getElementById("totals-meta");
   const gridEl = document.getElementById("totals-grid");
   if (!metaEl || !gridEl) return;
 
   const crafts = Math.ceil(targetQty / r.result.qty);
   const actual = crafts * r.result.qty;
-
-  metaEl.innerHTML =
-    `목표 <span class="hi">${targetQty}개</span> → ${crafts}회 제작 → 실제 생산 <span class="hi">${actual}개</span>`;
+  metaEl.innerHTML = `목표 <span class="hi">${targetQty}개</span> → ${crafts}회 제작 · 실제 생산 <span class="hi">${actual}개</span>`;
 
   gridEl.innerHTML = collect(r).map(ing => {
-    const total    = ing.base * crafts;
-    const subR     = findSubRecipe(ing.name);
+    const total = ing.base * crafts;
+    const subR = findSubRecipe(ing.name);
     const expanded = expandedSet.has(ing.name);
     const safeName = ing.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-
     const expandBtn = subR
-      ? `<button class="expand-btn${expanded ? " open" : ""}"
-           onclick="toggleSub(event,'${safeName}')"
-           title="원재료 보기">${expanded ? "▼" : "▶"}</button>`
+      ? `<button class="expand-btn${expanded ? " open" : ""}" onclick="toggleSub(event,'${safeName}')" title="재료 과정 보기">${expanded ? "−" : "+"}</button>`
       : "";
 
-    // 부재료 원재료 패널
     let subPanelHtml = "";
     if (subR && expanded) {
       const subCrafts = Math.ceil(total / subR.result.qty);
       const ti = TOOL[subR.tool];
-      const subIngs = collect(subR);
       subPanelHtml = `
         <div class="sub-panel">
-          <div class="sp-title">${ti.icon} ${subR.tool} &nbsp;${subCrafts}회 제작 기준</div>
+          <div class="sp-title">${toolVisual(subR.tool)} ${subR.tool} &nbsp;${subCrafts}회 제작 기준</div>
           <div class="sp-rows">
-            ${subIngs.map(si => `
+            ${collect(subR).map(si => `
               <div class="sp-row">
-                <span class="sp-icon">${si.icon}</span>
+                ${itemVisual(si, "sp-icon")}
                 <span class="sp-name">${si.name}</span>
                 <span class="sp-qty">${si.base * subCrafts}개</span>
               </div>`).join("")}
@@ -411,47 +468,43 @@ function refreshTotals() {
     return `
       <div class="total-card${ing.bowl ? " bowl-card" : ""}">
         <div class="card-top">
-          <span class="tc-icon">${ing.icon}</span>
+          ${itemVisual(ing, "tc-icon")}
           <div class="tc-info">
             <span class="tc-name">${ing.name}</span>
             <span class="tc-formula">${ing.base}개 × ${crafts}회</span>
-            <span class="tc-total">${total}개</span>
+            <span class="tc-total" data-total="${total}">${total}개</span>
           </div>
           ${expandBtn}
         </div>
         ${subPanelHtml}
       </div>`;
   }).join("");
+
+  requestAnimationFrame(() => {
+    animateTotalCards();
+    document.querySelectorAll(".tc-total").forEach(el => {
+      const total = parseInt(el.dataset.total || el.textContent, 10);
+      if (!Number.isNaN(total)) countUpTotal(el, total);
+    });
+  });
 }
 
-/* ════════════════════════════════════════════════════
-   그리드 도구 렌더 (제작대 / 냄비)
-════════════════════════════════════════════════════ */
-function gridSection(r) {
-  const ti    = TOOL[r.tool];
+function hiddenGridSection(r) {
+  const ti = TOOL[r.tool];
   const order = slotOrder(r.tool);
-  const gcls  = r.tool === "냄비" ? "grid-3x2" : "grid-3x3";
-
   const slotsHtml = order.map(row =>
-    row.map(n => {
-      const s = r.slots[n];
-      if (!s) return `<div class="slot"><span class="slot-num">${n}</span></div>`;
-      const sub = findSubRecipe(s.name);
-      return `<div class="slot filled${sub ? ' slot-link' : ''}" data-tip="${s.name}"${sub ? ` onclick="pickByName('${s.name}')"` : ''}>
-                 ${sub ? '<span class="slot-link-badge">↗</span>' : ''}
-                 <span class="slot-num">${n}</span>
-                 <span class="item-icon">${s.icon}</span>
-                 <span class="item-name">${s.name}</span>
-               </div>`;
-    }).join("")
+    row.map(n => `<div class="slot hidden-slot">
+      <span class="slot-num">${n}</span>
+      <span class="item-icon">?</span>
+      <span class="item-name">???</span>
+    </div>`).join("")
   ).join("");
-
   const bowlHtml = r.bowl ? `
     <div class="bowl-area">
       <div class="bowl-divider"></div>
       <div class="bowl-label">&#x1F4E5; 추가 재료</div>
       <div class="slot bowl filled" data-tip="${r.bowl.name}">
-        <span class="item-icon">${r.bowl.icon}</span>
+        ${itemVisual(r.bowl, "item-icon")}
         <span class="item-name">${r.bowl.name}</span>
       </div>
     </div>` : "";
@@ -459,31 +512,73 @@ function gridSection(r) {
   return `
     <div class="craft-area">
       <div class="grid-wrap">
-        <div class="grid-label">${ti.icon} ${r.tool}</div>
+        <div class="grid-label">${toolVisual(r.tool)} ${r.tool}</div>
+        <div class="grid-3x2">${slotsHtml}</div>
+        ${bowlHtml}
+      </div>
+      <div class="craft-arrow">&#x27A1;</div>
+      <div class="result-area">
+        <div class="result-slot">
+          ${itemVisual(r.result, "r-icon")}
+          <span class="r-name">${r.result.name}</span>
+        </div>
+      </div>
+    </div>
+    <div class="hidden-notice">
+      <div class="hidden-notice-icon">&#x1F50D;</div>
+      <div class="hidden-notice-text">
+        <strong>숨겨진 레시피</strong>
+        <p>이 레시피는 아직 공개되지 않았습니다.<br>확인되는 대로 업데이트하겠습니다.</p>
+      </div>
+    </div>`;
+}
+
+function gridSection(r) {
+  if (r.hidden) return hiddenGridSection(r);
+  const ti = TOOL[r.tool];
+  const order = slotOrder(r.tool);
+  const gcls = r.tool === "냄비" ? "grid-3x2" : "grid-3x3";
+  const slotsHtml = order.map(row =>
+    row.map(n => {
+      const s = r.slots[n];
+      if (!s) return `<div class="slot"><span class="slot-num">${n}</span></div>`;
+      const sub = findSubRecipe(s.name);
+      return `<div class="slot filled${sub ? ' slot-link' : ''}" data-tip="${s.name}"${sub ? ` onclick="pickByName('${s.name}')"` : ''}>
+        ${sub ? '<span class="slot-link-badge">↗</span>' : ''}
+        <span class="slot-num">${n}</span>
+        ${itemVisual(s, "item-icon")}
+        <span class="item-name">${s.name}</span>
+      </div>`;
+    }).join("")
+  ).join("");
+  const bowlHtml = r.bowl ? `
+    <div class="bowl-area">
+      <div class="bowl-divider"></div>
+      <div class="bowl-label">&#x1F4E5; 추가 재료</div>
+      <div class="slot bowl filled" data-tip="${r.bowl.name}">
+        ${itemVisual(r.bowl, "item-icon")}
+        <span class="item-name">${r.bowl.name}</span>
+      </div>
+    </div>` : "";
+
+  return `
+    <div class="craft-area">
+      <div class="grid-wrap">
+        <div class="grid-label">${toolVisual(r.tool)} ${r.tool}</div>
         <div class="${gcls}">${slotsHtml}</div>
         ${bowlHtml}
       </div>
       <div class="craft-arrow">&#x27A1;</div>
       <div class="result-area">
         <div class="result-slot">
-          <span class="r-icon">${r.result.icon}</span>
+          ${itemVisual(r.result, "r-icon")}
           <span class="r-name">${r.result.name}</span>
         </div>
-        <div class="qty-wrap">
-          <div class="qty-label">목표 수량</div>
-          <div class="qty-control">
-            <button class="qty-btn" onclick="changeQty(-1)">&#x2212;</button>
-            <input id="qty-num" class="qty-num" type="number" value="1" min="1" oninput="onQtyChange(event)">
-            <button class="qty-btn" onclick="changeQty(1)">&#x2B;</button>
-          </div>
-        </div>
+        ${qtyControl()}
       </div>
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════
-   단순 도구 렌더 (도마 / 화로 / 프라이팬)
-════════════════════════════════════════════════════ */
 function simpleSection(r) {
   const ti = TOOL[r.tool];
   const subInput = findSubRecipe(r.input.name);
@@ -491,348 +586,124 @@ function simpleSection(r) {
     <div class="simple-area">
       <div class="big-slot${subInput ? ' slot-link' : ''}"${subInput ? ` onclick="pickByName('${r.input.name}')"` : ''}>
         ${subInput ? '<span class="slot-link-badge">↗</span>' : ''}
-        <span class="b-icon">${r.input.icon}</span>
+        ${itemVisual(r.input, "b-icon")}
         <span class="b-name">${r.input.name}</span>
       </div>
       <div class="craft-arrow">&#x27A1;</div>
-      <div class="tool-mid" title="${r.tool}">${ti.icon}</div>
+      <div class="tool-mid" title="${r.tool}">${toolVisual(r.tool, "tool-mid-icon")}</div>
       <div class="craft-arrow">&#x27A1;</div>
       <div class="simple-right">
         <div class="big-result">
-          <span class="b-icon">${r.result.icon}</span>
+          ${itemVisual(r.result, "b-icon")}
           <span class="b-name">${r.result.name}</span>
           <span class="b-per">× ${r.result.qty} / 1회</span>
         </div>
-        <div class="qty-wrap">
-          <div class="qty-label">목표 수량</div>
-          <div class="qty-control">
-            <button class="qty-btn" onclick="changeQty(-1)">&#x2212;</button>
-            <input id="qty-num" class="qty-num" type="number" value="1" min="1" oninput="onQtyChange(event)">
-            <button class="qty-btn" onclick="changeQty(1)">&#x2B;</button>
-          </div>
-        </div>
+        ${qtyControl()}
       </div>
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════
-   메인 렌더
-════════════════════════════════════════════════════ */
+function qtyControl() {
+  return `
+    <div class="qty-wrap">
+      <div class="qty-label">목표 수량</div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty(-1)">&#x2212;</button>
+        <input id="qty-num" class="qty-num" type="number" value="${targetQty}" min="1" oninput="onQtyChange(event)">
+        <button class="qty-btn" onclick="changeQty(1)">&#x2B;</button>
+      </div>
+    </div>`;
+}
+
 function renderMain() {
-  const r  = RECIPES.find(x => x.id === activeId);
+  const r = RECIPES.find(x => x.id === activeId);
   if (!r) return;
   const ti = TOOL[r.tool];
 
   document.getElementById("main-content").innerHTML = `
     ${toolAmbience(r.tool)}
     <div class="recipe-header">
-      <span class="recipe-title">${r.result.icon}&nbsp;${r.name}</span>
-      <span class="tool-badge">${ti.icon} ${r.tool}</span>
+      <span class="recipe-title">${itemVisual(r.result, "title-icon")}&nbsp;${r.name}</span>
+      <div class="recipe-header-badges">
+        ${r.hidden ? '<span class="hidden-badge">&#x1F512; 숨겨진 레시피</span>' : ''}
+        <span class="tool-badge">${toolVisual(r.tool)} ${r.tool}</span>
+      </div>
     </div>
-
     ${ti.simple ? simpleSection(r) : gridSection(r)}
-
+    ${r.hidden ? '' : `
     <div class="section-divider"></div>
-
     <div class="totals-section">
       <div class="totals-header">
         <h3>&#x1F4E6; 필요 재료 총량</h3>
         <div class="totals-meta" id="totals-meta"></div>
       </div>
       <div class="totals-grid" id="totals-grid"></div>
-    </div>
+    </div>`}
   `;
 
-  refreshTotals();
+  if (!r.hidden) refreshTotals();
 }
 
-/* ════════════════════════════════════════════════════
-   배경 캔버스 파티클 시스템
-════════════════════════════════════════════════════ */
-(function () {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  const EMOJIS = ['⭐','✨','💫','🌾','🥚','🍖','🐟','🥬','🔥','🌿','🍃','💛'];
-  const COUNT  = 28;
-  let W, H, pts = [];
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-
-  function mkPt() {
-    return {
-      x: Math.random() * (W || 800),
-      y: Math.random() * (H || 600),
-      em: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-      sz: 10 + Math.random() * 14,
-      vx: (Math.random() - .5) * .25,
-      vy: -.15 - Math.random() * .32,
-      a:  .04 + Math.random() * .09,
-      rot: Math.random() * Math.PI * 2,
-      rs: (Math.random() - .5) * .018,
-    };
-  }
-
-  for (let i = 0; i < COUNT; i++) pts.push(mkPt());
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    for (const p of pts) {
-      ctx.save();
-      ctx.globalAlpha = p.a;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.font = p.sz + 'px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(p.em, 0, 0);
-      ctx.restore();
-      p.x += p.vx; p.y += p.vy; p.rot += p.rs;
-      if (p.y < -40) { p.y = H + 40; p.x = Math.random() * W; }
-    }
-    requestAnimationFrame(draw);
-  }
-
-  resize();
-  window.addEventListener('resize', resize);
-  draw();
-})();
-
-/* ════════════════════════════════════════════════════
-   헤더 픽셀 별
-════════════════════════════════════════════════════ */
-(function () {
-  const c = document.getElementById('header-stars');
-  for (let i = 0; i < 26; i++) {
-    const s = document.createElement('div');
-    s.className = 'h-star';
-    const sz = 3 + Math.random() * 5;
-    s.style.cssText =
-      `width:${sz}px;height:${sz}px;` +
-      `left:${Math.random()*100}%;top:${Math.random()*72}%;` +
-      `--dur:${1.4+Math.random()*2.4}s;--del:${-(Math.random()*3)}s;`;
-    c.appendChild(s);
-  }
-})();
-
-/* ════════════════════════════════════════════════════
-   슬롯 드롭인 애니메이션
-════════════════════════════════════════════════════ */
-function animateSlots() {
-  const slots = document.querySelectorAll('#main-content .slot.filled');
-  slots.forEach(function (sl, i) {
-    sl.classList.remove('drop-in');
-    void sl.offsetWidth;
-    setTimeout(function () { sl.classList.add('drop-in'); }, i * 65);
-  });
+function setupNotice() {
+  const overlay = document.getElementById("notice-overlay");
+  const close = document.getElementById("notice-close");
+  if (!overlay || !close) return;
+  requestAnimationFrame(() => overlay.classList.add("visible"));
+  close.addEventListener("click", () => overlay.classList.remove("visible"));
 }
 
-/* ════════════════════════════════════════════════════
-   카드 슬라이드인 애니메이션
-════════════════════════════════════════════════════ */
-function animateCards() {
-  document.querySelectorAll('.total-card').forEach(function (card, i) {
-    card.style.animationDelay = (i * .072) + 's';
-    card.classList.add('visible');
-  });
-}
-
-/* ════════════════════════════════════════════════════
-   숫자 카운트업
-════════════════════════════════════════════════════ */
-function countUp(el, target, dur) {
-  dur = dur || 420;
-  const t0 = performance.now();
-  (function tick(now) {
-    const p = Math.min((now - t0) / dur, 1);
-    const e = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(target * e) + '개';
-    if (p < 1) requestAnimationFrame(tick);
-  })(t0);
-}
-
-/* ════════════════════════════════════════════════════
-   리플 효과
-════════════════════════════════════════════════════ */
-document.addEventListener('click', function (ev) {
-  const btn = ev.target.closest('.recipe-btn,.qty-btn,.expand-btn,.bgm-toggle');
-  if (!btn) return;
-  const rp = document.createElement('span');
-  rp.className = 'ripple';
-  const rc = btn.getBoundingClientRect();
-  const sz = Math.max(rc.width, rc.height);
-  rp.style.cssText =
-    'width:' + sz + 'px;height:' + sz + 'px;' +
-    'left:' + (ev.clientX - rc.left - sz / 2) + 'px;' +
-    'top:'  + (ev.clientY - rc.top  - sz / 2) + 'px;';
-  btn.appendChild(rp);
-  rp.addEventListener('animationend', function () { rp.remove(); });
-});
-
-/* ════════════════════════════════════════════════════
-   renderMain / refreshTotals 후처리 훅
-════════════════════════════════════════════════════ */
-const _origRenderMain = renderMain;
-renderMain = function () {
-  _origRenderMain();
-  setTimeout(animateSlots, 40);
-};
-
-const _origRefreshTotals = refreshTotals;
-refreshTotals = function () {
-  _origRefreshTotals();
-  setTimeout(function () {
-    animateCards();
-    document.querySelectorAll('.tc-total').forEach(function (el) {
-      const raw = parseInt(el.textContent);
-      if (!isNaN(raw) && raw > 0) countUp(el, raw);
-    });
-  }, 40);
-};
-
-(function () {
-  const audio = document.getElementById('bgm-audio');
-  const toggle = document.getElementById('bgm-toggle');
-  const label = document.getElementById('bgm-label');
+function setupBgm() {
+  const audio = document.getElementById("bgm-audio");
+  const toggle = document.getElementById("bgm-toggle");
+  const label = document.getElementById("bgm-label");
   if (!audio || !toggle || !label) return;
-  let userPaused = false;
 
-  function setState(isPlaying, blocked) {
-    toggle.classList.toggle('is-playing', isPlaying);
-    toggle.classList.toggle('is-blocked', !!blocked);
-    toggle.setAttribute('aria-pressed', String(isPlaying));
-    label.textContent = isPlaying ? 'BGM 끄기' : 'BGM 켜기';
-    toggle.setAttribute('aria-label', isPlaying ? 'BGM 끄기' : 'BGM 켜기');
+  function setPlaying(isPlaying) {
+    toggle.setAttribute("aria-pressed", String(isPlaying));
+    toggle.classList.toggle("playing", isPlaying);
+    label.textContent = isPlaying ? "BGM 켜짐" : "BGM 켜기";
   }
 
-  async function playBgm(blockedLabel) {
+  async function play() {
     try {
       await audio.play();
-      setState(true, false);
-    } catch (err) {
-      setState(false, !!blockedLabel);
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
     }
   }
 
-  toggle.addEventListener('click', function () {
-    if (audio.paused) {
-      userPaused = false;
-      playBgm(false);
-    } else {
-      userPaused = true;
+  toggle.addEventListener("click", () => {
+    if (audio.paused) play();
+    else {
       audio.pause();
-      setState(false, false);
+      setPlaying(false);
     }
   });
+  document.addEventListener("pointerdown", () => {
+    if (audio.paused) play();
+  }, { once:true });
+  setPlaying(false);
+}
 
-  audio.addEventListener('play', function () { setState(true, false); });
-  audio.addEventListener('pause', function () { setState(false, false); });
-  window.addEventListener('DOMContentLoaded', function () { playBgm(true); });
-  document.addEventListener('pointerdown', function (ev) {
-    if (!audio.paused || userPaused || ev.target.closest('.bgm-toggle')) return;
-    playBgm(false);
-  }, { once: false });
-})();
+function setupHeaderStars() {
+  const c = document.getElementById("header-stars");
+  if (!c) return;
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement("div");
+    s.className = "header-star";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = Math.random() * 2 + "s";
+    c.appendChild(s);
+  }
+}
 
 renderSidebar();
+setupNotice();
+setupBgm();
+setupHeaderStars();
 pick("hamburger");
-
-/* ═══════════════════════════════════════════════════════════
-   UX POLISH — entrance animations & recipe switch transitions
-   이 블록은 renderSidebar() + pick() 호출 이후에 실행됩니다
-═══════════════════════════════════════════════════════════ */
-
-/* 1) 레시피 전환 시 fade-slide 트랜지션 */
-(function () {
-  var _origPickFn = pick;
-  pick = function (id) {
-    var main = document.getElementById('main-content');
-    if (!main) { _origPickFn(id); return; }
-    main.classList.add('recipe-out');
-    setTimeout(function () {
-      _origPickFn(id);
-      main.classList.remove('recipe-out');
-      void main.offsetWidth; /* reflow */
-      main.classList.add('recipe-in');
-      setTimeout(function () { main.classList.remove('recipe-in'); }, 300);
-    }, 140);
-  };
-})();
-
-/* 2) 사이드바 버튼 스태거 입장 */
-(function () {
-  var btns = Array.prototype.slice.call(document.querySelectorAll('.recipe-btn'));
-  btns.forEach(function (btn) {
-    btn.style.opacity = '0';
-    btn.style.transform = 'translateX(-10px)';
-  });
-  btns.forEach(function (btn, i) {
-    setTimeout(function () {
-      btn.style.transition = 'opacity .32s ease, transform .32s cubic-bezier(.34,1.56,.64,1)';
-      btn.style.opacity = '1';
-      btn.style.transform = 'translateX(0)';
-      setTimeout(function () {
-        btn.style.opacity = '';
-        btn.style.transform = '';
-        btn.style.transition = '';
-      }, 360);
-    }, 80 + i * 42);
-  });
-})();
-
-/* 3) 헤더 fade-drop 입장 */
-(function () {
-  var inner = document.querySelector('.header-inner');
-  if (!inner) return;
-  inner.style.opacity = '0';
-  inner.style.transform = 'translateY(-10px)';
-  setTimeout(function () {
-    inner.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.34,1.56,.64,1)';
-    inner.style.opacity = '1';
-    inner.style.transform = 'translateY(0)';
-    setTimeout(function () {
-      inner.style.opacity = '';
-      inner.style.transform = '';
-      inner.style.transition = '';
-    }, 650);
-  }, 50);
-})();
-
-/* 5) 초기 안내 팝업 */
-(function () {
-  if (sessionStorage.getItem('notice-seen')) return;
-  var overlay = document.getElementById('notice-overlay');
-  if (!overlay) return;
-
-  setTimeout(function () { overlay.classList.add('visible'); }, 500);
-
-  function closeNotice() {
-    overlay.classList.remove('visible');
-    sessionStorage.setItem('notice-seen', '1');
-  }
-
-  document.getElementById('notice-close').addEventListener('click', closeNotice);
-  overlay.addEventListener('click', function (e) {
-    if (e.target === overlay) closeNotice();
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeNotice();
-  });
-})();
-
-/* 4) 결과 슬롯 클릭 시 pop 피드백 */
-document.addEventListener('click', function (ev) {
-  var rs = ev.target.closest('.result-slot, .big-result');
-  if (!rs) return;
-  rs.style.transition = 'transform .15s cubic-bezier(.34,1.56,.64,1)';
-  rs.style.transform = 'scale(1.08)';
-  setTimeout(function () {
-    rs.style.transform = 'scale(1)';
-    setTimeout(function () { rs.style.transition = ''; rs.style.transform = ''; }, 160);
-  }, 120);
-});
 </script>
 </body>
 </html>

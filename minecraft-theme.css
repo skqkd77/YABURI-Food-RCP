@@ -462,6 +462,29 @@ header h1 {
 .slot.slot-link:hover .slot-link-badge { transform: scale(1.25); }
 
 .slot .item-icon { font-size: var(--slot-icon); line-height: 1; filter: none; }
+.item-img {
+  display: block;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.tool-img {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  vertical-align: middle;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.tool-mid .tool-img {
+  width: 38px;
+  height: 38px;
+}
+.slot .item-img {
+  width: calc(var(--slot-icon) + 14px);
+  height: calc(var(--slot-icon) + 14px);
+}
 .slot .item-name {
   font-family: 'Noto Sans KR', sans-serif;
   font-size: var(--slot-lbl); font-weight: 600;
@@ -535,6 +558,17 @@ header h1 {
 @keyframes border-rotate { to { --angle: 360deg; } }
 
 .result-slot .r-icon { font-size: 40px; animation: none; filter: none; }
+.result-slot .item-img {
+  width: 54px;
+  height: 54px;
+}
+.title-icon.item-img {
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
 .result-slot .r-name {
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 11px; font-weight: 700; color: var(--t2);
@@ -554,6 +588,11 @@ header h1 {
               transform .18s cubic-bezier(.34,1.56,.64,1);
 }
 .big-slot .b-icon { font-size: 30px; filter: none; }
+.big-slot .item-img,
+.big-result .item-img {
+  width: 48px;
+  height: 48px;
+}
 .big-slot .b-name {
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 11px; font-weight: 600; color: var(--t2);
@@ -720,6 +759,10 @@ header h1 {
 
 .card-top { display: flex; align-items: center; gap: 12px; }
 .tc-icon  { font-size: 32px; line-height: 1; flex-shrink: 0; filter: none; }
+.tc-icon.item-img {
+  width: 42px;
+  height: 42px;
+}
 .tc-info  { display: flex; flex-direction: column; gap: 3px; flex: 1; }
 
 .tc-name {
@@ -791,6 +834,10 @@ header h1 {
 .sp-row:hover { background: var(--brand-soft); border-color: var(--brand-border); transform: translateX(4px); }
 
 .sp-icon { font-size: 18px; line-height: 1; }
+.sp-icon.item-img {
+  width: 24px;
+  height: 24px;
+}
 .sp-name { color: var(--t2); flex: 1; line-height: 1.5; word-break: keep-all; font-weight: 600; text-shadow: none; }
 .sp-qty  { font-size: 15px; color: var(--success); font-weight: 800; flex-shrink: 0; text-shadow: none; }
 
@@ -1023,6 +1070,104 @@ body.tool-crafting .craft-area { border-color: var(--purple-border);   backgroun
 }
 .notice-btn:hover  { opacity: .88; transform: translateY(-2px); }
 .notice-btn:active { transform: scale(.97); opacity: 1; }
+
+/* =====================================================================
+   HIDDEN RECIPE — 히든 레시피 스타일
+   ===================================================================== */
+
+/* 사이드바 히든 버튼 */
+.recipe-btn.hidden-recipe-btn {
+  opacity: 0.6;
+  font-style: italic;
+  color: var(--t4);
+}
+.recipe-btn.hidden-recipe-btn:hover {
+  background: var(--surface-3) !important;
+  border-color: var(--border-mid) !important;
+  color: var(--t3) !important;
+  opacity: 1;
+}
+.recipe-btn.hidden-recipe-btn.active {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  border-color: transparent;
+  color: var(--t-inv);
+  opacity: 1;
+  font-style: normal;
+  box-shadow: 0 4px 18px rgba(71,85,105,.28);
+}
+
+/* 레시피 헤더 배지 영역 */
+.recipe-header-badges {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+/* 히든 배지 */
+.hidden-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px; font-weight: 700;
+  padding: 6px 14px;
+  box-shadow: 0 2px 8px rgba(71,85,105,.3);
+  animation: hidden-badge-pulse 3s ease-in-out infinite;
+}
+@keyframes hidden-badge-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(71,85,105,.3); }
+  50%       { box-shadow: 0 2px 16px rgba(71,85,105,.55); }
+}
+
+/* 히든 슬롯 */
+.slot.hidden-slot {
+  background: linear-gradient(155deg, #1E293B 0%, #334155 100%);
+  border-color: #475569;
+  cursor: default;
+}
+.slot.hidden-slot .item-icon {
+  font-size: 26px; opacity: 0.55;
+  animation: hidden-float 2.8s ease-in-out infinite;
+}
+.slot.hidden-slot .item-name {
+  color: #64748B; font-weight: 700;
+}
+.slot.hidden-slot .slot-num { color: #475569; }
+.slot.hidden-slot:hover {
+  background: linear-gradient(155deg, #1E293B 0%, #3B4C63 100%) !important;
+  border-color: #64748B !important;
+  box-shadow: 0 4px 12px rgba(71,85,105,.3) !important;
+  transform: none !important;
+}
+@keyframes hidden-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+/* 히든 안내 패널 */
+.hidden-notice {
+  display: flex; align-items: center; gap: 18px;
+  background: linear-gradient(135deg, var(--surface-2) 0%, #F1F5F9 100%);
+  border: 1.5px dashed var(--border-mid);
+  border-radius: var(--r-md);
+  padding: 20px 24px;
+  margin-top: 20px;
+  animation: card-slide .32s cubic-bezier(.34,1.56,.64,1) both;
+}
+.hidden-notice-icon {
+  font-size: 38px; flex-shrink: 0;
+  animation: hidden-float 3s ease-in-out infinite;
+}
+.hidden-notice-text strong {
+  display: block;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 16px; font-weight: 800; color: var(--t1);
+  margin-bottom: 6px;
+}
+.hidden-notice-text p {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; color: var(--t3); line-height: 1.75;
+  margin: 0;
+}
 
 /* =====================================================================
    RESPONSIVE
