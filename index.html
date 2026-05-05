@@ -7,408 +7,31 @@
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --slot-sz:   96px;
-      --slot-icon: 34px;
-      --slot-lbl:  11px;
-      --gold:  #FFD700;
-      --green: #55FF55;
-      --blue:  #55AAFF;
-      --panel: #3c3c3c;
-      --slot-empty: #1a1a1a;
-      --slot-fill:  #252525;
-    }
-
+    /* base reset — overridden by minecraft-theme.css */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
-    body {
-      background: #FAF5ED;
-      color: #2A1A0A;
-      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-      font-size: 13px;
-      min-height: 100vh;
-    }
-
-    /* ══════════ HEADER ══════════ */
-    header {
-      background: linear-gradient(180deg, #7a5528 0%, #4a2e0e 60%, #2e1800 100%);
-      border-bottom: 5px solid #a07830;
-      text-align: center;
-      padding: 22px 16px;
-    }
-    header::before, header::after {
-      content: "";
-      display: block;
-      height: 3px;
-      background: repeating-linear-gradient(90deg, #c8a050 0 8px, #6b4010 8px 16px);
-    }
-    header::before { margin-bottom: 14px; }
-    header::after  { margin-top:    14px; }
-    header h1 {
-      font-size: 22px;
-      color: var(--gold);
-      text-shadow: 2px 2px 0 #7a5c00, 4px 4px 0 #3a2a00;
-      letter-spacing: 2px;
-      line-height: 1.7;
-    }
-
-    /* ══════════ LAYOUT ══════════ */
-    .layout {
-      display: flex;
-      gap: 14px;
-      padding: 14px;
-      max-width: 1200px;
-      margin: 0 auto;
-      align-items: flex-start;
-    }
-
-    /* MC outset panel */
-    .mc-panel {
-      background: var(--panel);
-      border: 4px solid;
-      border-top-color:    #707070;
-      border-left-color:   #707070;
-      border-right-color:  #181818;
-      border-bottom-color: #181818;
-    }
-
-    /* ══════════ SIDEBAR ══════════ */
-    .sidebar { width: 230px; flex-shrink: 0; padding: 14px; }
-
-    .cat-section { margin-bottom: 16px; }
-    .cat-title {
-      font-size: 12px;
-      color: var(--gold);
-      padding: 8px 10px;
-      margin-bottom: 9px;
-      background: #1a1a1a;
-      border-left: 4px solid var(--gold);
-      line-height: 1.7;
-    }
-    .recipe-wrap { display: flex; flex-direction: column; gap: 6px; }
-
-    .recipe-btn {
-      background: #2c2c2c;
-      border: 3px solid;
-      border-top-color:    #525252;
-      border-left-color:   #525252;
-      border-right-color:  #0e0e0e;
-      border-bottom-color: #0e0e0e;
-      color: #ccc;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 11px;
-      padding: 11px 10px;
-      cursor: pointer;
-      text-align: left;
-      line-height: 1.9;
-    }
-    .recipe-btn:hover  { filter: brightness(1.3); color: var(--gold); }
-    .recipe-btn.active {
-      background: #3e2800;
-      border-top-color:    #a07830;
-      border-left-color:   #a07830;
-      border-right-color:  #180e00;
-      border-bottom-color: #180e00;
-      color: var(--gold);
-    }
-
-    /* ══════════ MAIN ══════════ */
-    .main { flex: 1; min-width: 0; padding: 22px; }
-
-    .recipe-header {
-      display: flex; align-items: center;
-      gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
-    }
-    .recipe-title { font-size: 18px; color: var(--gold); line-height: 1.6; }
-    .tool-badge {
-      font-size: 11px;
-      background: #1a1a1a;
-      border: 2px solid #a07830;
-      color: #ffd060;
-      padding: 6px 13px;
-      line-height: 1.9;
-    }
-
-    /* ══════════ SLOTS ══════════ */
-    .slot {
-      width: var(--slot-sz);
-      height: var(--slot-sz);
-      background: var(--slot-empty);
-      border: 3px solid;
-      border-top-color:    #111;
-      border-left-color:   #111;
-      border-right-color:  #666;
-      border-bottom-color: #666;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 3px; position: relative;
-    }
-    .slot.filled {
-      background: var(--slot-fill);
-      border-top-color:    #0d0d0d;
-      border-left-color:   #0d0d0d;
-      border-right-color:  #767676;
-      border-bottom-color: #767676;
-      cursor: help;
-    }
-    .slot .item-icon { font-size: var(--slot-icon); line-height: 1; }
-    .slot .item-name {
-      font-size: var(--slot-lbl);
-      color: #ccc; text-align: center;
-      line-height: 1.5; width: 100%; padding: 0 4px;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      word-break: keep-all;
-    }
-    .slot .slot-num {
-      position: absolute; top: 3px; right: 4px;
-      font-size: 8px; color: #555;
-    }
-    /* Hover tooltip */
-    .slot.filled:hover::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: calc(100% + 8px); left: 50%;
-      transform: translateX(-50%);
-      background: #111; border: 3px solid #666;
-      color: #fff; font-size: 9px;
-      padding: 5px 10px; white-space: nowrap;
-      z-index: 200; pointer-events: none; line-height: 1.8;
-    }
-
-    /* ══════════ GRIDS ══════════ */
-    .grid-wrap { display: flex; flex-direction: column; }
-    .grid-label { font-size: 11px; color: #777; margin-bottom: 10px; }
-    .grid-3x3 { display: grid; grid-template-columns: repeat(3, var(--slot-sz)); gap: 5px; }
-    .grid-3x2 { display: grid; grid-template-columns: repeat(3, var(--slot-sz)); gap: 5px; }
-
-    /* Bowl slot */
-    .bowl-area {
-      margin-top: 12px;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 5px;
-    }
-    .bowl-divider { width: 100%; border-top: 2px dashed #3a6a8a; }
-    .bowl-label { font-size: 11px; color: var(--blue); }
-    .slot.bowl {
-      border-top-color:    #091830;
-      border-left-color:   #091830;
-      border-right-color:  #4a9abf;
-      border-bottom-color: #4a9abf;
-      background: #0c1a28;
-    }
-    .slot.bowl.filled { background: #112030; }
-
-    /* ══════════ CRAFT AREA ══════════ */
-    .craft-area {
-      display: flex; align-items: center;
-      gap: 22px; flex-wrap: wrap;
-    }
-    .craft-arrow { font-size: 32px; color: var(--gold); line-height: 1; }
-
-    /* Result */
-    .result-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-    .result-slot {
-      width: 106px; height: 106px;
-      background: var(--slot-empty);
-      border: 4px solid var(--gold);
-      box-shadow: 0 0 12px rgba(255,215,0,.2);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 5px;
-    }
-    .result-slot .r-icon { font-size: 40px; }
-    .result-slot .r-name { font-size: 10px; color: var(--gold); text-align: center; line-height: 1.6; }
-
-    /* Qty */
-    .qty-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .qty-label { font-size: 10px; color: #888; }
-    .qty-control { display: flex; border: 2px solid var(--gold); }
-    .qty-btn {
-      width: 34px; height: 34px;
-      background: #3a3000; border: none;
-      color: var(--gold); font-family: 'Press Start 2P', monospace;
-      font-size: 18px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .qty-btn:hover { background: #5a5000; }
-    .qty-num {
-      width: 54px; text-align: center;
-      background: #1a1600; color: var(--gold);
-      font-family: 'Press Start 2P', monospace; font-size: 13px;
-      border: none;
-      border-left: 2px solid var(--gold);
-      border-right: 2px solid var(--gold);
-      padding: 5px 0; outline: none;
-    }
-    .qty-num::-webkit-outer-spin-button,
-    .qty-num::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .qty-num[type=number] { -moz-appearance: textfield; }
-
-    /* ══════════ SIMPLE TOOL ══════════ */
-    .simple-area {
-      display: flex; align-items: center;
-      gap: 22px; flex-wrap: wrap;
-    }
-    .big-slot {
-      width: 96px; height: 96px;
-      background: var(--slot-empty);
-      border: 3px solid;
-      border-top-color: #111; border-left-color: #111;
-      border-right-color: #666; border-bottom-color: #666;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 5px;
-    }
-    .big-slot .b-icon { font-size: 36px; }
-    .big-slot .b-name { font-size: 11px; color: #aaa; text-align: center; line-height: 1.5; max-width: 90px; word-break: keep-all; }
-    .big-result {
-      width: 110px; height: 110px;
-      background: var(--slot-empty);
-      border: 4px solid var(--gold);
-      box-shadow: 0 0 12px rgba(255,215,0,.2);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 5px;
-    }
-    .big-result .b-icon { font-size: 40px; }
-    .big-result .b-name { font-size: 10px; color: var(--gold); text-align: center; line-height: 1.6; }
-    .big-result .b-per  { font-size: 11px; color: var(--green); }
-    .tool-mid { font-size: 46px; line-height: 1; }
-    .simple-right { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-
-    /* ══════════ DIVIDER ══════════ */
-    .section-divider {
-      height: 3px; margin: 22px 0;
-      background: repeating-linear-gradient(90deg, #555 0 4px, transparent 4px 8px);
-    }
-
-    /* ══════════ TOTALS ══════════ */
-    .totals-section { }
-    .totals-header { margin-bottom: 12px; }
-    .totals-header h3 { font-size: 14px; color: #aaa; margin-bottom: 10px; }
-    .totals-meta { font-size: 11px; color: #888; line-height: 2.2; }
-    .totals-meta .hi { color: var(--green); }
-    .totals-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-
-    /* Total card — column layout */
-    .total-card {
-      display: flex; flex-direction: column;
-      background: #222;
-      border: 3px solid;
-      border-top-color:    #484848;
-      border-left-color:   #484848;
-      border-right-color:  #0a0a0a;
-      border-bottom-color: #0a0a0a;
-      padding: 14px 16px;
-      min-width: 180px;
-    }
-    .total-card.bowl-card {
-      border-top-color: #2a5a7b;
-      border-left-color: #2a5a7b;
-    }
-    /* Top row inside card */
-    .card-top {
-      display: flex; align-items: center; gap: 14px;
-    }
-    .tc-icon { font-size: 38px; line-height: 1; flex-shrink: 0; }
-    .tc-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-    .tc-name    { font-size: 12px; color: #ddd; line-height: 1.7; word-break: keep-all; }
-    .tc-formula { font-size: 11px; color: #777; }
-    .tc-total   { font-size: 26px; color: var(--green); text-shadow: 1px 1px 0 #004400; }
-    .bowl-card .tc-total { color: var(--blue); text-shadow: 1px 1px 0 #002244; }
-
-    /* Expand button */
-    .expand-btn {
-      flex-shrink: 0;
-      background: #2a2000;
-      border: 2px solid #a07030;
-      color: #ffc000;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 11px;
-      padding: 7px 10px;
-      cursor: pointer;
-      line-height: 1;
-      align-self: flex-start;
-    }
-    .expand-btn:hover { background: #3a3000; border-color: var(--gold); color: var(--gold); }
-    .expand-btn.open  { background: #3a2800; border-color: #ffaa00; color: #ffaa00; }
-
-    /* Sub-panel inside total card */
-    .sub-panel {
-      margin-top: 12px;
-      border-top: 2px dashed #444;
-      padding-top: 10px;
-    }
-    .sp-title {
-      font-size: 10px; color: #888;
-      margin-bottom: 11px; line-height: 1.9;
-    }
-    .sp-rows { display: flex; flex-direction: column; gap: 9px; }
-    .sp-row {
-      display: flex; align-items: center;
-      gap: 11px; font-size: 11px;
-    }
-    .sp-icon { font-size: 22px; line-height: 1; }
-    .sp-name { color: #aaa; flex: 1; line-height: 1.6; word-break: keep-all; }
-    .sp-qty  { font-size: 15px; color: var(--green); text-shadow: 1px 1px 0 #004400; flex-shrink: 0; }
-
-    /* ══════════ EMPTY STATE ══════════ */
-    .empty-state { text-align: center; color: #555; padding: 60px 20px; }
-    .empty-state .e-icon { font-size: 52px; display: block; margin-bottom: 24px; }
-    .empty-state .e-msg  { font-size: 14px; line-height: 2.5; color: #555; }
-
-    /* ══════════ RESPONSIVE ══════════ */
-    @media (max-width: 900px) {
-      .layout { flex-direction: column; }
-      .sidebar { width: 100%; }
-      .recipe-wrap { flex-direction: row; flex-wrap: wrap; gap: 6px; }
-      .recipe-btn { font-size: 10px; padding: 9px 10px; }
-      header h1 { font-size: 16px; }
-    }
-    @media (max-width: 640px) {
-      :root { --slot-sz: 72px; --slot-icon: 26px; --slot-lbl: 9px; }
-      header h1 { font-size: 12px; letter-spacing: 1px; }
-      .recipe-title { font-size: 14px; }
-      .tool-badge   { font-size: 10px; }
-      .cat-title    { font-size: 11px; }
-      .recipe-btn   { font-size: 9px; padding: 8px 9px; }
-      .craft-area  { flex-direction: column; align-items: center; }
-      .simple-area { flex-direction: column; align-items: center; }
-      .craft-arrow { display: inline-block; transform: rotate(90deg); }
-      .result-slot { width: 84px; height: 84px; }
-      .result-slot .r-icon { font-size: 32px; }
-      .result-slot .r-name { font-size: 9px; }
-      .big-slot    { width: 88px; height: 88px; }
-      .big-result  { width: 90px; height: 90px; }
-      .big-slot .b-icon, .big-result .b-icon { font-size: 32px; }
-      .big-slot .b-name { font-size: 10px; }
-      .big-result .b-name { font-size: 9px; }
-      .total-card  { min-width: 160px; padding: 13px 14px; }
-      .tc-icon  { font-size: 30px; }
-      .tc-name  { font-size: 11px; }
-      .tc-total { font-size: 22px; }
-      .totals-header h3 { font-size: 12px; }
-      .totals-meta      { font-size: 10px; }
-    }
-    @media (max-width: 420px) {
-      :root { --slot-sz: 60px; --slot-icon: 22px; --slot-lbl: 8px; }
-      header h1 { font-size: 10px; }
-      .recipe-title { font-size: 12px; }
-      .tc-name  { font-size: 10px; }
-      .tc-total { font-size: 20px; }
-    }
-    #bg-canvas {
-      position: fixed; inset: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; z-index: 0;
-    }
+    body { background: #F1F5F9; min-height: 100vh; }
+    #bg-canvas { display: none; }
   </style>
-  <link rel="stylesheet" href="./minecraft-theme.css?v=20260502-bright">
+  <link rel="stylesheet" href="./minecraft-theme.css?v=20260505-premium">
 </head>
 <body>
 
 <canvas id="bg-canvas"></canvas>
+
+<!-- 초기 안내 팝업 -->
+<div class="notice-overlay" id="notice-overlay" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+  <div class="notice-modal">
+    <div class="notice-stripe"></div>
+    <div class="notice-body-wrap">
+      <span class="notice-icon">⚠️</span>
+      <h2 class="notice-title" id="notice-title">서비스 안내</h2>
+      <p class="notice-tag">베타 서비스 운영 중</p>
+      <p class="notice-desc">현재 서버 오픈 초기 단계입니다.<br>정식 오픈 이후 레시피 내용이 변경될 수 있으며,<br>일부 수치가 실제와 다를 수 있습니다.</p>
+      <button class="notice-btn" id="notice-close">확인했습니다</button>
+    </div>
+  </div>
+</div>
 <audio id="bgm-audio" src="./maple_bgm.mp3?v=20260502-bgm" loop preload="auto"></audio>
 <button id="bgm-toggle" class="bgm-toggle" type="button" aria-pressed="false" aria-label="BGM 켜기">
   <span class="bgm-dot" aria-hidden="true"></span>
@@ -428,12 +51,16 @@
 
   <aside class="sidebar mc-panel">
     <div class="cat-section">
-      <div class="cat-title">&#x1F527; 부재료</div>
-      <div class="recipe-wrap" id="sub-list"></div>
+      <div class="cat-title cat-main">&#x1F37D; 메인 요리</div>
+      <div class="recipe-wrap" id="main-list"></div>
     </div>
     <div class="cat-section">
-      <div class="cat-title">&#x1F37D; 메인 요리</div>
-      <div class="recipe-wrap" id="main-list"></div>
+      <div class="cat-title cat-sub1">&#x1F52A; 1차 가공 <span class="cat-hint">도마 · 팬 · 제작대</span></div>
+      <div class="recipe-wrap" id="sub1-list"></div>
+    </div>
+    <div class="cat-section">
+      <div class="cat-title cat-sub2">&#x1F525; 2차 가공 <span class="cat-hint">화로</span></div>
+      <div class="recipe-wrap" id="sub2-list"></div>
     </div>
   </aside>
 
@@ -467,7 +94,7 @@ const TOOL = {
 const RECIPES = [
   /* ── 부재료 ─────────────────────────────────── */
   {
-    id:"flour_dough", name:"밀가루 반죽", category:"sub", tool:"제작대",
+    id:"flour_dough", name:"밀가루 반죽", category:"sub1", tool:"제작대",
     result:{ icon:"🫓", name:"밀가루 반죽", qty:3 },
     slots:{
       1:{ icon:"🌾", name:"밀",   qty:1 },
@@ -477,57 +104,57 @@ const RECIPES = [
     },
   },
   {
-    id:"minced_beef", name:"다진 소고기", category:"sub", tool:"도마",
+    id:"minced_beef", name:"다진 소고기", category:"sub1", tool:"도마",
     result:{ icon:"🟤", name:"다진 소고기", qty:2 },
     input: { icon:"🥩", name:"익히지 않은 소고기", qty:1 },
   },
   {
-    id:"beef_patty", name:"소고기 패티", category:"sub", tool:"화로",
+    id:"beef_patty", name:"소고기 패티", category:"sub2", tool:"화로",
     result:{ icon:"🟫", name:"소고기 패티", qty:1 },
     input: { icon:"🟤", name:"다진 소고기", qty:1 },
   },
   {
-    id:"raw_chicken_piece", name:"익히지 않은 닭고기 살점", category:"sub", tool:"도마",
+    id:"raw_chicken_piece", name:"익히지 않은 닭고기 살점", category:"sub1", tool:"도마",
     result:{ icon:"🍗", name:"익히지 않은 닭고기 살점", qty:2 },
     input: { icon:"🐔", name:"익히지 않은 닭고기", qty:1 },
   },
   {
-    id:"raw_cod_piece", name:"익히지 않은 대구 살점", category:"sub", tool:"도마",
+    id:"raw_cod_piece", name:"익히지 않은 대구 살점", category:"sub1", tool:"도마",
     result:{ icon:"🔵", name:"익히지 않은 대구 살점", qty:2 },
     input: { icon:"🐟", name:"익히지 않은 대구", qty:1 },
   },
   {
-    id:"raw_salmon_piece", name:"익히지 않은 연어 살점", category:"sub", tool:"도마",
+    id:"raw_salmon_piece", name:"익히지 않은 연어 살점", category:"sub1", tool:"도마",
     result:{ icon:"🟠", name:"익히지 않은 연어 살점", qty:2 },
     input: { icon:"🐠", name:"익히지 않은 연어", qty:1 },
   },
   {
-    id:"raw_mutton_piece", name:"익히지 않은 양고기 살점", category:"sub", tool:"도마",
+    id:"raw_mutton_piece", name:"익히지 않은 양고기 살점", category:"sub1", tool:"도마",
     result:{ icon:"🔴", name:"익히지 않은 양고기 살점", qty:2 },
     input: { icon:"🐑", name:"익히지 않은 양고기", qty:1 },
   },
   {
-    id:"cabbage_leaf", name:"양배추 잎", category:"sub", tool:"도마",
+    id:"cabbage_leaf", name:"양배추 잎", category:"sub1", tool:"도마",
     result:{ icon:"🥬", name:"양배추 잎", qty:2 },
     input: { icon:"🥦", name:"양배추", qty:1 },
   },
   {
-    id:"cooked_mutton", name:"익힌 양고기 살점", category:"sub", tool:"화로",
+    id:"cooked_mutton", name:"익힌 양고기 살점", category:"sub2", tool:"화로",
     result:{ icon:"🥘", name:"익힌 양고기 살점", qty:1 },
     input: { icon:"🔴", name:"익히지 않은 양고기 살점", qty:1 },
   },
   {
-    id:"cooked_chicken", name:"익힌 닭고기 살점", category:"sub", tool:"화로",
+    id:"cooked_chicken", name:"익힌 닭고기 살점", category:"sub2", tool:"화로",
     result:{ icon:"🍖", name:"익힌 닭고기 살점", qty:1 },
     input: { icon:"🍗", name:"익히지 않은 닭고기 살점", qty:1 },
   },
   {
-    id:"cooked_salmon", name:"익힌 연어 살점", category:"sub", tool:"화로",
+    id:"cooked_salmon", name:"익힌 연어 살점", category:"sub2", tool:"화로",
     result:{ icon:"🍣", name:"익힌 연어 살점", qty:1 },
     input: { icon:"🟠", name:"익히지 않은 연어 살점", qty:1 },
   },
   {
-    id:"fried_egg", name:"계란 후라이", category:"sub", tool:"프라이팬",
+    id:"fried_egg", name:"계란 후라이", category:"sub1", tool:"프라이팬",
     result:{ icon:"🍳", name:"계란 후라이", qty:1 },
     input: { icon:"🥚", name:"계란", qty:1 },
   },
@@ -653,7 +280,7 @@ function toolAmbience(tool) {
 
 // 재료 이름으로 부재료 레시피 찾기
 function findSubRecipe(name) {
-  return RECIPES.find(r => r.category === "sub" && r.result.name === name);
+  return RECIPES.find(r => (r.category === "sub1" || r.category === "sub2") && r.result.name === name);
 }
 
 // 재료 이름으로 해당 레시피 페이지로 이동
@@ -686,10 +313,12 @@ function slotOrder(tool) {
    사이드바
 ════════════════════════════════════════════════════ */
 function renderSidebar() {
-  ["sub","main"].forEach(cat => {
-    document.getElementById(cat + "-list").innerHTML = RECIPES
+  ["main", "sub1", "sub2"].forEach(cat => {
+    const el = document.getElementById(cat + "-list");
+    if (!el) return;
+    el.innerHTML = RECIPES
       .filter(r => r.category === cat)
-      .map(r => `<button class="recipe-btn" id="btn-${r.id}" onclick="pick('${r.id}')">${r.name}</button>`)
+      .map(r => `<button class="recipe-btn" data-cat="${cat}" id="btn-${r.id}" onclick="pick('${r.id}')">${r.name}</button>`)
       .join("");
   });
 }
@@ -1109,6 +738,101 @@ refreshTotals = function () {
 
 renderSidebar();
 pick("hamburger");
+
+/* ═══════════════════════════════════════════════════════════
+   UX POLISH — entrance animations & recipe switch transitions
+   이 블록은 renderSidebar() + pick() 호출 이후에 실행됩니다
+═══════════════════════════════════════════════════════════ */
+
+/* 1) 레시피 전환 시 fade-slide 트랜지션 */
+(function () {
+  var _origPickFn = pick;
+  pick = function (id) {
+    var main = document.getElementById('main-content');
+    if (!main) { _origPickFn(id); return; }
+    main.classList.add('recipe-out');
+    setTimeout(function () {
+      _origPickFn(id);
+      main.classList.remove('recipe-out');
+      void main.offsetWidth; /* reflow */
+      main.classList.add('recipe-in');
+      setTimeout(function () { main.classList.remove('recipe-in'); }, 300);
+    }, 140);
+  };
+})();
+
+/* 2) 사이드바 버튼 스태거 입장 */
+(function () {
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.recipe-btn'));
+  btns.forEach(function (btn) {
+    btn.style.opacity = '0';
+    btn.style.transform = 'translateX(-10px)';
+  });
+  btns.forEach(function (btn, i) {
+    setTimeout(function () {
+      btn.style.transition = 'opacity .32s ease, transform .32s cubic-bezier(.34,1.56,.64,1)';
+      btn.style.opacity = '1';
+      btn.style.transform = 'translateX(0)';
+      setTimeout(function () {
+        btn.style.opacity = '';
+        btn.style.transform = '';
+        btn.style.transition = '';
+      }, 360);
+    }, 80 + i * 42);
+  });
+})();
+
+/* 3) 헤더 fade-drop 입장 */
+(function () {
+  var inner = document.querySelector('.header-inner');
+  if (!inner) return;
+  inner.style.opacity = '0';
+  inner.style.transform = 'translateY(-10px)';
+  setTimeout(function () {
+    inner.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.34,1.56,.64,1)';
+    inner.style.opacity = '1';
+    inner.style.transform = 'translateY(0)';
+    setTimeout(function () {
+      inner.style.opacity = '';
+      inner.style.transform = '';
+      inner.style.transition = '';
+    }, 650);
+  }, 50);
+})();
+
+/* 5) 초기 안내 팝업 */
+(function () {
+  if (sessionStorage.getItem('notice-seen')) return;
+  var overlay = document.getElementById('notice-overlay');
+  if (!overlay) return;
+
+  setTimeout(function () { overlay.classList.add('visible'); }, 500);
+
+  function closeNotice() {
+    overlay.classList.remove('visible');
+    sessionStorage.setItem('notice-seen', '1');
+  }
+
+  document.getElementById('notice-close').addEventListener('click', closeNotice);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeNotice();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeNotice();
+  });
+})();
+
+/* 4) 결과 슬롯 클릭 시 pop 피드백 */
+document.addEventListener('click', function (ev) {
+  var rs = ev.target.closest('.result-slot, .big-result');
+  if (!rs) return;
+  rs.style.transition = 'transform .15s cubic-bezier(.34,1.56,.64,1)';
+  rs.style.transform = 'scale(1.08)';
+  setTimeout(function () {
+    rs.style.transform = 'scale(1)';
+    setTimeout(function () { rs.style.transition = ''; rs.style.transform = ''; }, 160);
+  }, 120);
+});
 </script>
 </body>
 </html>
