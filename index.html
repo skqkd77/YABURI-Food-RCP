@@ -362,6 +362,31 @@ function collect(r) {
   return Object.values(map);
 }
 
+function addMapped(map, item, qty, bowl) {
+  if (!map[item.name]) map[item.name] = { ...item, base: 0, bowl: !!bowl };
+  map[item.name].base += qty;
+  if (bowl) map[item.name].bowl = true;
+}
+
+function collectRawFromItem(item, neededQty, map, trail = []) {
+  const subR = findSubRecipe(item.name);
+  if (!subR || item.bowl || trail.includes(item.name)) {
+    addMapped(map, item, neededQty, item.bowl);
+    return;
+  }
+
+  const crafts = Math.ceil(neededQty / subR.result.qty);
+  collect(subR).forEach(child => {
+    collectRawFromItem(child, child.base * crafts, map, [...trail, item.name]);
+  });
+}
+
+function collectRawTotals(r, crafts) {
+  const map = {};
+  collect(r).forEach(ing => collectRawFromItem(ing, ing.base * crafts, map));
+  return Object.values(map);
+}
+
 function slotOrder(tool) {
   return tool === "냄비" ? [[1,2,3],[4,5,6]] : [[1,2,3],[4,5,6],[7,8,9]];
 }
@@ -432,7 +457,8 @@ function refreshTotals() {
   if (!r || r.hidden) return;
   const metaEl = document.getElementById("totals-meta");
   const gridEl = document.getElementById("totals-grid");
-  if (!metaEl || !gridEl) return;
+  const rawGridEl = document.getElementById("raw-totals-grid");
+  if (!metaEl || !gridEl || !rawGridEl) return;
 
   const crafts = Math.ceil(targetQty / r.result.qty);
   const actual = crafts * r.result.qty;
@@ -477,6 +503,21 @@ function refreshTotals() {
           ${expandBtn}
         </div>
         ${subPanelHtml}
+      </div>`;
+  }).join("");
+
+  rawGridEl.innerHTML = collectRawTotals(r, crafts).map(ing => {
+    const total = ing.base;
+    return `
+      <div class="total-card raw-card${ing.bowl ? " bowl-card" : ""}">
+        <div class="card-top">
+          ${itemVisual(ing, "tc-icon")}
+          <div class="tc-info">
+            <span class="tc-name">${ing.name}</span>
+            <span class="tc-formula">하위 레시피까지 합산</span>
+            <span class="tc-total" data-total="${total}">${total}개</span>
+          </div>
+        </div>
       </div>`;
   }).join("");
 
@@ -638,6 +679,13 @@ function renderMain() {
         <div class="totals-meta" id="totals-meta"></div>
       </div>
       <div class="totals-grid" id="totals-grid"></div>
+      <div class="raw-totals-section">
+        <div class="totals-header raw-totals-header">
+          <h3>&#x1F9FA; 원재료 총량</h3>
+          <div class="totals-meta">부재료 제작에 필요한 하위 재료까지 합산했습니다.</div>
+        </div>
+        <div class="totals-grid raw-totals-grid" id="raw-totals-grid"></div>
+      </div>
     </div>`}
   `;
 

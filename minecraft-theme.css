@@ -722,6 +722,17 @@ header h1 {
   gap: 10px; margin-top: 14px;
 }
 
+.raw-totals-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border-mid);
+}
+.raw-totals-header { margin-bottom: 10px; }
+.raw-card {
+  background: linear-gradient(155deg, var(--surface) 0%, var(--brand-soft) 100%);
+  border-color: var(--brand-border);
+}
+
 /* ── TOTAL CARD ── */
 .total-card {
   display: flex; flex-direction: column;
