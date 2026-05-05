@@ -700,7 +700,6 @@ function setupNotice() {
   const overlay = document.getElementById("notice-overlay");
   const close = document.getElementById("notice-close");
   if (!overlay || !close) return;
-  requestAnimationFrame(() => overlay.classList.add("visible"));
   close.addEventListener("click", () => overlay.classList.remove("visible"));
 }
 
