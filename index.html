@@ -88,6 +88,7 @@ const IMAGE_FILES = [
   "냄비.png",
   "도마.png",
   "막대기.png",
+  "마라샹궈.png",
   "만두.png",
   "밀.png",
   "바베큐 꼬치.png",
@@ -284,8 +285,15 @@ const RECIPES = [
   },
   {
     id:"malatang", name:"마라샹궈", category:"main", tool:"냄비",
-    hidden:true,
     result:{ icon:"🍲", name:"마라샹궈", qty:1 },
+    slots:{
+      1:{ icon:"🔴", name:"레드스톤 가루", qty:1 },
+      2:{ icon:"🌾", name:"밀가루 반죽", qty:1 },
+      3:{ icon:"🟣", name:"비트", qty:1 },
+      4:{ icon:"🐡", name:"복어", qty:1 },
+      5:{ icon:"🐚", name:"앵무조개껍데기", qty:1 },
+      6:{ icon:"🍖", name:"익힌 양고기 살점", qty:1 },
+    },
     bowl:{ icon:"🥣", name:"그릇" },
   },
 ];
