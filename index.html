@@ -12,7 +12,7 @@
     body { background: #F1F5F9; min-height: 100vh; }
     #bg-canvas { display: none; }
   </style>
-  <link rel="stylesheet" href="./minecraft-theme.css?v=20260505-images">
+  <link rel="stylesheet" href="./minecraft-theme.css?v=20260506-bgm-images">
 </head>
 <body>
 
@@ -87,6 +87,7 @@ const IMAGE_FILES = [
   "달걀.png",
   "냄비.png",
   "도마.png",
+  "레드스톤 가루.png",
   "막대기.png",
   "마라샹궈.png",
   "만두.png",
@@ -96,6 +97,8 @@ const IMAGE_FILES = [
   "복어.png",
   "비트.png",
   "샐러드.png",
+  "소고기 패티.webp",
+  "앵무조개 껍데기.png",
   "양배추 잎.png",
   "양배추 쌈.png",
   "양배추.png",
@@ -123,7 +126,6 @@ const IMAGE_ALIASES = {
   "계란": "달걀.png",
   "계란 후라이": "계란 프라이.png",
   "달걀 샌드위치": "계란 샌드위치.png",
-  "소고기 패티": "다진 소고기.png",
   "익힌 돼지고기": "익힌 돼지고기.png",
   "바비큐 꼬치": "바베큐 꼬치.png",
 };
@@ -132,7 +134,7 @@ const TOOL_IMAGES = {
   "냄비": "images/냄비.png",
   "도마": "images/도마.png",
   "프라이팬": "images/프라이팬.png",
-  "화로": "images/냄비.png",
+  "화로": "images/화로.webp",
   "제작대": "images/제작대.png",
 };
 
@@ -291,7 +293,7 @@ const RECIPES = [
       2:{ icon:"🌾", name:"밀가루 반죽", qty:1 },
       3:{ icon:"🟣", name:"비트", qty:1 },
       4:{ icon:"🐡", name:"복어", qty:1 },
-      5:{ icon:"🐚", name:"앵무조개껍데기", qty:1 },
+      5:{ icon:"🐚", name:"앵무조개 껍데기", qty:1 },
       6:{ icon:"🍖", name:"익힌 양고기 살점", qty:1 },
     },
     bowl:{ icon:"🥣", name:"그릇" },
@@ -719,7 +721,8 @@ function setupBgm() {
 
   function setPlaying(isPlaying) {
     toggle.setAttribute("aria-pressed", String(isPlaying));
-    toggle.classList.toggle("playing", isPlaying);
+    toggle.classList.toggle("is-playing", isPlaying);
+    toggle.classList.remove("is-blocked");
     label.textContent = isPlaying ? "BGM 켜짐" : "BGM 켜기";
   }
 
@@ -729,6 +732,7 @@ function setupBgm() {
       setPlaying(true);
     } catch {
       setPlaying(false);
+      toggle.classList.add("is-blocked");
     }
   }
 
