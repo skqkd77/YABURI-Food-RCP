@@ -12,7 +12,7 @@
     body { background: #F1F5F9; min-height: 100vh; }
     #bg-canvas { display: none; }
   </style>
-  <link rel="stylesheet" href="./minecraft-theme.css?v=20260508-stats">
+  <link rel="stylesheet" href="./minecraft-theme.css?v=20260510-recipes">
 </head>
 <body>
 
@@ -42,16 +42,11 @@
   <div class="header-inner">
     <span class="header-eyebrow">Recipe Workshop</span>
     <h1>야부리들의 요리 공방</h1>
-    <p class="header-tagline">레시피 탐색 &middot; 재료 수량 계산 &middot; 캐릭터 스텟 한글화</p>
+    <p class="header-tagline">레시피 탐색 &middot; 재료 수량 계산</p>
   </div>
 </header>
 
-<nav class="site-tabs" aria-label="사이트 메뉴">
-  <button class="site-tab active" type="button" data-view="recipes" onclick="switchView('recipes')">레시피</button>
-  <button class="site-tab" type="button" data-view="stats" onclick="switchView('stats')">스텟 한글화</button>
-</nav>
-
-<div class="layout view-panel active" id="recipes-view">
+<div class="layout" id="recipes-view">
   <aside class="sidebar mc-panel">
     <div class="cat-section">
       <div class="cat-title cat-main">&#x1F37D; 메인 요리</div>
@@ -75,99 +70,7 @@
   </main>
 </div>
 
-<section class="stat-view view-panel" id="stats-view" aria-label="캐릭터 스텟 한글화">
-  <div class="stat-shell">
-    <div class="stat-frame">
-      <div class="stat-top">
-        <h2>캐릭터 스텟</h2>
-        <div class="stat-info-grid">
-          <div class="stat-info">
-            <span>직업</span>
-            <strong>스나이퍼</strong>
-          </div>
-          <div class="stat-info">
-            <span>레벨</span>
-            <strong>30</strong>
-          </div>
-          <div class="stat-info stat-info-wide">
-            <span>경험치</span>
-            <strong>45887/109074</strong>
-          </div>
-          <div class="stat-info">
-            <span>포인트</span>
-            <strong>60</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="stat-board">
-        <aside class="basic-stat-panel">
-          <h3>기본 스텟</h3>
-          <div class="basic-stat-list">
-            <button class="basic-stat-row active" type="button" data-stat="str">
-              <span class="basic-stat-name">STR</span>
-              <span class="basic-stat-value">0</span>
-              <span class="stat-eye" aria-hidden="true"></span>
-            </button>
-            <button class="basic-stat-row" type="button" data-stat="dex">
-              <span class="basic-stat-name">DEX</span>
-              <span class="basic-stat-value">0</span>
-              <span class="stat-eye" aria-hidden="true"></span>
-            </button>
-            <button class="basic-stat-row" type="button" data-stat="int">
-              <span class="basic-stat-name">INT</span>
-              <span class="basic-stat-value">0</span>
-              <span class="stat-eye" aria-hidden="true"></span>
-            </button>
-            <button class="basic-stat-row" type="button" data-stat="def">
-              <span class="basic-stat-name">DEF</span>
-              <span class="basic-stat-value">0</span>
-              <span class="stat-eye" aria-hidden="true"></span>
-            </button>
-          </div>
-          <div class="stat-detail">
-            <span>스텟 설명</span>
-            <strong id="stat-detail-title">STR</strong>
-            <p id="stat-detail-copy">데미지를 상승시킵니다. 기본 공격 데미지와 전투 효율에 영향을 줍니다.</p>
-          </div>
-        </aside>
-
-        <main class="final-stat-panel">
-          <h3>최종 적용 스텟</h3>
-          <div class="final-stat-group">
-            <h4>전투</h4>
-            <div class="final-stat-row"><span>공격력</span><strong>0</strong></div>
-            <div class="final-stat-row"><span>방어무기 데미지</span><strong>0</strong></div>
-            <div class="final-stat-row"><span>최종 데미지</span><strong>0</strong></div>
-            <div class="final-stat-row"><span>추가 데미지</span><strong>0%</strong></div>
-            <div class="final-stat-row"><span>치명확률</span><strong>0%</strong></div>
-            <div class="final-stat-row"><span>치명타 데미지</span><strong>0</strong></div>
-            <div class="final-stat-row"><span>쿨타임 감소</span><strong>0%</strong></div>
-          </div>
-          <div class="final-stat-group">
-            <h4>서바이벌</h4>
-            <div class="final-stat-row"><span>방어력</span><strong>0</strong></div>
-            <div class="final-stat-row"><span>최대 체력</span><strong>0</strong></div>
-            <div class="final-stat-row"><span>체력 재생</span><strong>0</strong></div>
-          </div>
-          <div class="final-stat-group">
-            <h4>기동성</h4>
-            <div class="final-stat-row"><span>이동 속도</span><strong>0%</strong></div>
-          </div>
-        </main>
-      </div>
-    </div>
-  </div>
-</section>
-
 <script>
-const STAT_DETAILS = {
-  str: { title: "STR", copy: "데미지를 상승시킵니다. 기본 공격 데미지와 전투 효율에 영향을 줍니다." },
-  dex: { title: "DEX", copy: "이동속도와 공격속도를 올립니다. 빠른 전투 흐름에 유리합니다." },
-  int: { title: "INT", copy: "추가 데미지를 올립니다. 보너스 데미지 계열에 영향을 줍니다." },
-  def: { title: "DEF", copy: "방어력을 올립니다. 받는 피해를 줄이고 생존력을 높입니다." },
-};
-
 const TOOL = {
   "제작대":   { icon: "⚒", simple: false },
   "냄비":     { icon: "🍲", simple: false, hasBowl: true },
@@ -400,6 +303,7 @@ const RECIPES = [
 let activeId = null;
 let targetQty = 1;
 let expandedSet = new Set();
+let ingredientPrices = {};
 
 function itemImagePath(name) {
   const exactPng = `${name}.png`;
@@ -513,36 +417,11 @@ function renderSidebar() {
   });
 }
 
-function switchView(view) {
-  document.querySelectorAll(".site-tab").forEach(tab => {
-    const active = tab.dataset.view === view;
-    tab.classList.toggle("active", active);
-    tab.setAttribute("aria-current", active ? "page" : "false");
-  });
-  document.querySelectorAll(".view-panel").forEach(panel => {
-    panel.classList.toggle("active", panel.id === view + "-view");
-  });
-}
-
-function setupStatPanel() {
-  const title = document.getElementById("stat-detail-title");
-  const copy = document.getElementById("stat-detail-copy");
-  document.querySelectorAll(".basic-stat-row").forEach(row => {
-    row.addEventListener("click", () => {
-      const detail = STAT_DETAILS[row.dataset.stat];
-      if (!detail || !title || !copy) return;
-      document.querySelectorAll(".basic-stat-row").forEach(item => item.classList.remove("active"));
-      row.classList.add("active");
-      title.textContent = detail.title;
-      copy.textContent = detail.copy;
-    });
-  });
-}
-
 function pick(id) {
   activeId = id;
   targetQty = 1;
   expandedSet.clear();
+  ingredientPrices = {};
   const recipe = RECIPES.find(r => r.id === id);
   if (recipe) setToolTheme(recipe.tool);
   document.querySelectorAll(".recipe-btn").forEach(b => b.classList.remove("active"));
@@ -587,6 +466,52 @@ function countUpTotal(el, target, duration = 420) {
     if (progress < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
+}
+
+function priceKey(name) {
+  return name.replace(/\s+/g, "_").replace(/[^\w가-힣-]/g, "");
+}
+
+function formatKani(value) {
+  return Math.round(value).toLocaleString("ko-KR");
+}
+
+function kaniMarkup(value) {
+  return `<span class="kani-amount">${formatKani(value)}</span><span class="kani-unit">카니</span>`;
+}
+
+function updatePriceSummary() {
+  const rows = document.querySelectorAll(".price-row");
+  const totalEl = document.getElementById("price-total-value");
+  const perEl = document.getElementById("price-per-value");
+  const hintEl = document.getElementById("price-hint");
+  if (!totalEl || !perEl || !hintEl) return;
+
+  let totalCost = 0;
+  let hasPrice = false;
+
+  rows.forEach(row => {
+    const qty = Number(row.dataset.qty || 0);
+    const input = row.querySelector(".price-input");
+    const lineEl = row.querySelector(".price-line-total");
+    const price = Number(input?.value || 0);
+    const lineTotal = qty * price;
+
+    if (price > 0) hasPrice = true;
+    if (lineEl) lineEl.innerHTML = price > 0 ? kaniMarkup(lineTotal) : "-";
+    totalCost += lineTotal;
+  });
+
+  totalEl.innerHTML = hasPrice ? kaniMarkup(totalCost) : "-";
+  perEl.innerHTML = hasPrice ? `<span class="price-per-prefix">개당 약</span> ${kaniMarkup(totalCost / Math.max(targetQty, 1))}` : "단가를 입력하면 계산됩니다";
+  hintEl.textContent = hasPrice ? "입력한 원재료 단가 기준의 대략적인 재료값입니다." : "필요한 원재료의 개당 가격을 입력해보세요.";
+}
+
+function onIngredientPriceInput(event, key) {
+  const value = event.target.value;
+  if (value === "") delete ingredientPrices[key];
+  else ingredientPrices[key] = value;
+  updatePriceSummary();
 }
 
 function refreshTotals() {
@@ -645,6 +570,8 @@ function refreshTotals() {
 
   rawGridEl.innerHTML = collectRawTotals(r, crafts).map(ing => {
     const total = ing.base;
+    const key = priceKey(ing.name);
+    const value = ingredientPrices[key] || "";
     return `
       <div class="total-card raw-card${ing.bowl ? " bowl-card" : ""}">
         <div class="card-top">
@@ -655,8 +582,31 @@ function refreshTotals() {
             <span class="tc-total" data-total="${total}">${total}개</span>
           </div>
         </div>
+        <div class="price-row" data-qty="${total}">
+          <label class="price-label" for="price-${key}">개당 가격</label>
+          <div class="price-input-wrap">
+            <input id="price-${key}" class="price-input" type="number" min="0" inputmode="numeric" placeholder="0" value="${value}" oninput="onIngredientPriceInput(event, '${key}')">
+            <span class="price-unit">카니</span>
+          </div>
+          <strong class="price-line-total">-</strong>
+        </div>
       </div>`;
   }).join("");
+
+  document.getElementById("price-summary")?.remove();
+  rawGridEl.insertAdjacentHTML("afterend", `
+    <div class="price-summary" id="price-summary">
+      <div>
+        <span class="price-summary-label">총 재료값</span>
+        <strong id="price-total-value">-</strong>
+      </div>
+      <div>
+        <span class="price-summary-label">목표 수량 기준</span>
+        <strong id="price-per-value">단가를 입력하면 계산됩니다</strong>
+      </div>
+      <p id="price-hint">필요한 원재료의 개당 가격을 입력해보세요.</p>
+    </div>
+  `);
 
   requestAnimationFrame(() => {
     animateTotalCards();
@@ -664,6 +614,7 @@ function refreshTotals() {
       const total = parseInt(el.dataset.total || el.textContent, 10);
       if (!Number.isNaN(total)) countUpTotal(el, total);
     });
+    updatePriceSummary();
   });
 }
 
@@ -889,7 +840,6 @@ renderSidebar();
 setupNotice();
 setupBgm();
 setupHeaderStars();
-setupStatPanel();
 pick("hamburger");
 </script>
 </body>
