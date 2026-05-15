@@ -1430,3 +1430,408 @@ body.tool-crafting .craft-area { border-color: var(--purple-border);   backgroun
   .totals-grid { grid-template-columns: 1fr; }
   .recipe-wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* =====================================================================
+   TAB NAVIGATION
+   ===================================================================== */
+.tab-nav-outer {
+  position: sticky; top: 0; z-index: 90;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1.5px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 2px 12px rgba(15,23,42,.06);
+}
+.tab-nav {
+  display: flex;
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 28px;
+}
+.tab-btn {
+  position: relative;
+  background: none; border: none;
+  padding: 16px 26px 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--t4); cursor: pointer;
+  transition: color .15s;
+  white-space: nowrap; line-height: 1;
+}
+.tab-btn::after {
+  content: "";
+  position: absolute; bottom: 0; left: 6px; right: 6px;
+  height: 3px; border-radius: 3px 3px 0 0;
+  background: var(--brand-mid);
+  transform: scaleX(0);
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1);
+}
+.tab-btn:hover { color: var(--t2); }
+.tab-btn.active { color: var(--brand-mid); }
+.tab-btn.active::after { transform: scaleX(1); }
+
+/* =====================================================================
+   MARKET VIEW  (mc2-* prefix)
+   ===================================================================== */
+.market-view {
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 28px 60px;
+}
+
+/* =====================================================================
+   MARKET CARDS v3  (mc3-*)
+   ===================================================================== */
+
+/* ── 전체 래퍼 ── */
+.mc3-wrap { width: 100%; }
+
+/* ── 히어로 ── */
+.mc3-hero {
+  margin: 20px 0 28px;
+  padding: 30px 36px;
+  background: linear-gradient(130deg, #0F172A 0%, #1E3A8A 55%, #1D4ED8 100%);
+  border-radius: var(--r-lg);
+  position: relative; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(29,78,216,.28);
+}
+.mc3-hero::before {
+  content: "";
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 90% at 95% 50%, rgba(124,58,237,.28) 0%, transparent 65%),
+    radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 100%, 22px 22px;
+}
+.mc3-hero-in { position: relative; z-index: 1; }
+.mc3-eyebrow {
+  display: inline-flex;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px;
+  color: #C7D2FE;
+  font-size: 10px; font-weight: 800;
+  letter-spacing: .1em !important; text-transform: uppercase;
+  padding: 4px 12px; margin-bottom: 12px;
+}
+.mc3-hero-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 26px; font-weight: 800; color: #fff;
+  margin: 0 0 6px; line-height: 1.2;
+}
+.mc3-hero-sub {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,.68);
+  margin: 0 0 16px; line-height: 1.65;
+}
+.mc3-date {
+  display: inline-flex;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  color: rgba(255,255,255,.8);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px; font-weight: 700;
+  padding: 5px 14px;
+}
+
+/* ── 섹션 ── */
+.mc3-content { display: flex; flex-direction: column; gap: 32px; }
+
+.mc3-sec-hd {
+  display: flex; align-items: center; gap: 10px;
+  padding-left: 14px; border-left: 4px solid;
+  margin-bottom: 14px;
+}
+.mc3-sec-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.mc3-sec-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 18px; font-weight: 800; color: var(--t1); flex: 1;
+}
+.mc3-sec-cnt {
+  background: var(--surface-3);
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 800; color: var(--t3);
+  padding: 3px 10px;
+}
+
+/* ── 카드 그리드 ── */
+.mc3-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* ── 개별 카드 ── */
+.mc3-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--s1);
+  display: flex; flex-direction: column;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .18s;
+}
+.mc3-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(15,23,42,.11), 0 3px 6px rgba(15,23,42,.05);
+  border-color: var(--border-mid);
+}
+
+/* 헤더: 이미지 + 이름 + 칩 (수평) */
+.mc3-hd {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface-2) 0%, #F0F4FF 100%);
+}
+.mc3-hd-img {
+  width: 44px; height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.7);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+.mc3-img {
+  width: 36px; height: 36px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.mc3-img-ph { font-size: 26px; line-height: 1; }
+.mc3-hd-text {
+  display: flex; flex-direction: column; gap: 4px;
+  flex: 1; min-width: 0;
+}
+.mc3-name {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px; font-weight: 800; color: var(--t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mc3-chip {
+  display: inline-flex; align-items: center;
+  border: 1px solid; border-radius: 999px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 10px; font-weight: 800;
+  padding: 2px 8px; align-self: flex-start;
+}
+
+/* 서버 판매가 블록 */
+.mc3-price-block {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.mc3-price-label {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 10px; font-weight: 800; color: var(--t4);
+  letter-spacing: .07em !important; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+/* 묶음 가격이 주역 */
+.mc3-price-main {
+  display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap;
+}
+.mc3-price-qty {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--t3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  padding: 1px 6px;
+}
+.mc3-price-eq {
+  font-size: 13px; color: var(--t4); font-weight: 700;
+}
+.mc3-price-num {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 28px; font-weight: 900; color: #DC2626;
+  line-height: 1; letter-spacing: -.02em !important;
+  font-variant-numeric: tabular-nums;
+}
+.mc3-price-unit {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; font-weight: 700; color: #DC2626;
+  opacity: .85;
+}
+/* 개당 가격은 파생 정보 — 작게 */
+.mc3-price-per {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 600; color: var(--t4);
+  margin-top: 5px;
+}
+
+/* 수익 계산기 */
+.mc3-calc {
+  padding: 13px 16px 14px;
+  flex: 1; display: flex; flex-direction: column; gap: 0;
+}
+.mc3-calc-hd {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 800; color: var(--t3);
+  margin-bottom: 6px;
+}
+/* 수량/가격 행 레이아웃 */
+.mc3-calc-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.mc3-calc-label {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--t4);
+  white-space: nowrap; width: 52px; flex-shrink: 0;
+}
+.mc3-price-group {
+  display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;
+}
+.mc3-unit-sel {
+  flex-shrink: 0;
+  height: 34px; padding: 0 7px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r-sm);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--t2);
+  background: var(--surface-2);
+  cursor: pointer; outline: none;
+  transition: border-color .14s;
+}
+.mc3-unit-sel:focus { border-color: var(--brand-mid); }
+.mc3-unit-hint {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 600; color: #6366F1;
+  min-height: 16px; margin-bottom: 4px;
+}
+.mc3-res-formula {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; color: var(--t3);
+  margin-bottom: 6px; line-height: 1.5;
+}
+.mc3-res-formula strong { font-size: 12px; }
+
+/* 수량 + 금액 두 칸 레이아웃 (구형, 하위호환) */
+.mc3-dual-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.mc3-dual-field {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.mc3-dual-label {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 10px; font-weight: 800; color: var(--t4);
+  letter-spacing: .05em !important;
+}
+.mc3-input-wrap {
+  display: flex; align-items: center;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  overflow: hidden; flex: 1; min-width: 0;
+  transition: border-color .14s, box-shadow .14s;
+}
+.mc3-input-wrap:focus-within {
+  border-color: var(--brand-mid);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.11);
+}
+.mc3-input {
+  flex: 1; min-width: 0;
+  height: 34px; padding: 0 8px;
+  border: none; outline: none; background: transparent;
+  color: var(--t1);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px; font-weight: 800;
+  text-align: right;
+}
+.mc3-input::-webkit-outer-spin-button,
+.mc3-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.mc3-input[type=number] { -moz-appearance: textfield; }
+.mc3-input-unit {
+  padding: 0 9px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--t4);
+  white-space: nowrap;
+  border-left: 1px solid var(--border);
+  height: 34px; display: flex; align-items: center;
+  background: var(--surface-2);
+}
+
+/* 결과 박스 */
+.mc3-result { margin-top: 10px; }
+
+@keyframes res-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.mc3-result-box {
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  animation: res-in .18s ease-out both;
+}
+.mc3-res-profit { background: #F0FDF4; border: 1.5px solid #86EFAC; }
+.mc3-res-loss   { background: #FFF5F5; border: 1.5px solid #FCA5A5; }
+
+/* 결과 행: 개당 / 묶음 */
+.mc3-res-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 2px 0;
+}
+.mc3-res-row + .mc3-res-row {
+  border-top: 1px dashed rgba(0,0,0,.07);
+  margin-top: 5px; padding-top: 6px;
+}
+.mc3-res-label {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--t3);
+  min-width: 54px;
+}
+.mc3-res-val {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px; font-weight: 900;
+  flex: 1;
+}
+.val-up { color: #15803D; }
+.val-dn { color: #DC2626; }
+
+.mc3-res-pct {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px; font-weight: 900;
+  padding: 2px 8px; border-radius: 999px;
+}
+.pct-up { background: #DCFCE7; color: #15803D; }
+.pct-dn { background: #FEE2E2; color: #DC2626; }
+
+.mc3-res-row-bulk .mc3-res-val { font-size: 13px; font-weight: 700; }
+
+/* 개당 파생 행 */
+.mc3-res-row-sub {
+  border-top: 1px dashed rgba(0,0,0,.08) !important;
+  margin-top: 6px; padding-top: 6px;
+}
+.mc3-res-val-sm {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px; font-weight: 600; color: var(--t3);
+  flex: 1; line-height: 1.5;
+}
+.mc3-res-val-sm strong { font-weight: 900; }
+.mc3-res-val-sm.val-up strong { color: #15803D; }
+.mc3-res-val-sm.val-dn strong { color: #DC2626; }
+
+/* ── 반응형 ── */
+@media (max-width: 900px) {
+  .market-view { padding: 0 14px 40px; }
+  .mc3-hero { padding: 22px 22px; margin: 14px 0 22px; }
+  .mc3-hero-title { font-size: 22px; }
+  .mc3-cards { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .tab-nav { padding: 0 14px; }
+}
+@media (max-width: 640px) {
+  .mc3-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .mc3-price-num { font-size: 22px; }
+  .tab-btn { font-size: 13px; padding: 14px 16px 12px; }
+}
+@media (max-width: 480px) {
+  .mc3-cards { grid-template-columns: 1fr; }
+  .mc3-cards { max-width: 340px; margin: 0 auto; }
+}

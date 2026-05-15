@@ -46,6 +46,13 @@
   </div>
 </header>
 
+<div class="tab-nav-outer">
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" data-tab="recipes" role="tab" onclick="switchTab('recipes')">🍲 레시피</button>
+    <button class="tab-btn" data-tab="market" role="tab" onclick="switchTab('market')">🏪 서버 시세</button>
+  </nav>
+</div>
+
 <div class="layout" id="recipes-view">
   <aside class="sidebar mc-panel">
     <div class="cat-section">
@@ -69,6 +76,8 @@
     </div>
   </main>
 </div>
+
+<div class="market-view" id="market-view" style="display:none"></div>
 
 <script>
 const TOOL = {
@@ -120,6 +129,9 @@ const IMAGE_FILES = [
   "제작대.png",
   "프라이팬.png",
   "햄버거.png",
+  "소 물고기.png",
+  "열대어.png",
+  "캡틴동해콘.png",
 ];
 
 const IMAGE_ALIASES = {
@@ -286,6 +298,19 @@ const RECIPES = [
     bowl:{ icon:"🪵", name:"막대기" },
   },
   {
+    id:"captain_donghae", name:"캡틴동해콘", category:"main", tool:"냄비",
+    result:{ icon:"🌽", name:"캡틴동해콘", qty:1 },
+    slots:{
+      1:{ icon:"🐠", name:"열대어", qty:1 },
+      2:{ icon:"🐟", name:"소 물고기", qty:1 },
+      3:{ icon:"🟣", name:"비트", qty:1 },
+      4:{ icon:"🟣", name:"비트", qty:1 },
+      5:{ icon:"🍳", name:"계란 후라이", qty:1 },
+      6:{ icon:"🌾", name:"밀가루 반죽", qty:1 },
+    },
+    bowl:{ icon:"🥣", name:"그릇" },
+  },
+  {
     id:"malatang", name:"마라샹궈", category:"main", tool:"냄비",
     result:{ icon:"🍲", name:"마라샹궈", qty:1 },
     slots:{
@@ -299,6 +324,35 @@ const RECIPES = [
     bowl:{ icon:"🥣", name:"그릇" },
   },
 ];
+
+const MARKET_PRICES = {
+  date: "2026-05-15",
+  sections: [
+    {
+      id: "farm", label: "농작물", icon: "🌾", color: "green",
+      items: [
+        { name: "양배추", imageName: "양배추",             unit: "개", bulkQty: 64, bulkPrice: 1200 },
+        { name: "밀",     imageName: "밀",                 unit: "개", bulkQty: 64, bulkPrice: 720  },
+        { name: "비트",   imageName: "비트",               unit: "개", bulkQty: 64, bulkPrice: 720  },
+      ]
+    },
+    {
+      id: "fish", label: "수산시장", icon: "🐟", color: "blue",
+      items: [
+        { name: "대구", imageName: "익히지 않은 대구", unit: "마리", bulkQty: 1, bulkPrice: 3200 },
+        { name: "연어", imageName: "익히지 않은 연어", unit: "마리", bulkQty: 1, bulkPrice: 3200 },
+      ]
+    },
+    {
+      id: "vending", label: "요리자판기", icon: "🏪", color: "amber",
+      items: [
+        { name: "계란",     imageName: "달걀",                unit: "개", bulkQty: 16, bulkPrice: 100 },
+        { name: "돼지고기", imageName: "익히지 않은 돼지고기", unit: "개", bulkQty: 64, bulkPrice: 300 },
+        { name: "닭고기",   imageName: "익히지 않은 닭고기",  unit: "개", bulkQty: 64, bulkPrice: 200 },
+      ]
+    }
+  ]
+};
 
 let activeId = null;
 let targetQty = 1;
@@ -836,10 +890,210 @@ function setupHeaderStars() {
   }
 }
 
+function switchTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(function(b) {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  var rv = document.getElementById("recipes-view");
+  var mv = document.getElementById("market-view");
+  if (rv) rv.style.display = (tab === "recipes") ? "" : "none";
+  if (mv) mv.style.display = (tab === "market") ? "" : "none";
+}
+
+function mcFmt(v) {
+  return parseFloat(v.toFixed(2)).toLocaleString("ko-KR");
+}
+
+function buildMarketCard(item, sec) {
+  var unitPrice = item.bulkPrice / item.bulkQty;
+  var imgSrc    = itemImagePath(item.imageName);
+  var rid       = "mc-" + item.name.split(" ").join("_");
+
+  var colMap = {
+    green: { bg:"#F0FDF4", bd:"#86EFAC", tx:"#166534", acc:"#16A34A" },
+    blue:  { bg:"#EFF6FF", bd:"#BFDBFE", tx:"#1E3A8A", acc:"#2563EB" },
+    amber: { bg:"#FFFBEB", bd:"#FDE68A", tx:"#92400E", acc:"#D97706" },
+  };
+  var col = colMap[sec.color] || colMap.blue;
+
+
+  var h = "";
+  h += '<div class="mc3-card"';
+  h += ' data-bulk-price="' + item.bulkPrice + '"';
+  h += ' data-bulk-qty="' + item.bulkQty + '"';
+  h += ' data-unit-price="' + unitPrice + '">';
+
+  // ── 헤더: 이미지 + 이름 + 칩 ──
+  h += '<div class="mc3-hd">';
+  h += '<div class="mc3-hd-img">';
+  if (imgSrc) {
+    h += '<img class="mc3-img" src="' + imgSrc + '" alt="' + item.name + '" loading="lazy">';
+  } else {
+    h += '<span class="mc3-img-ph">🛒</span>';
+  }
+  h += '</div>';
+  h += '<div class="mc3-hd-text">';
+  h += '<div class="mc3-name">' + item.name + '</div>';
+  h += '<span class="mc3-chip" style="background:' + col.bg + ';border-color:' + col.bd + ';color:' + col.acc + '">' + sec.label + '</span>';
+  h += '</div>';
+  h += '</div>';
+
+  // ── 서버 판매가: 묶음이 기준, 개당은 파생 ──
+  h += '<div class="mc3-price-block">';
+  h += '<div class="mc3-price-label">서버 판매가</div>';
+
+  // 묶음 가격 (1개짜리는 "1마리" 식으로)
+  h += '<div class="mc3-price-main">';
+  if (item.bulkQty === 1) {
+    h += '<span class="mc3-price-qty">1' + item.unit + '</span>';
+    h += '<span class="mc3-price-eq">=</span>';
+    h += '<span class="mc3-price-num">' + item.bulkPrice.toLocaleString("ko-KR") + '</span>';
+    h += '<span class="mc3-price-unit">카니</span>';
+  } else {
+    h += '<span class="mc3-price-qty">' + item.bulkQty + item.unit + '</span>';
+    h += '<span class="mc3-price-eq">=</span>';
+    h += '<span class="mc3-price-num">' + item.bulkPrice.toLocaleString("ko-KR") + '</span>';
+    h += '<span class="mc3-price-unit">카니</span>';
+  }
+  h += '</div>';
+
+  // 개당 가격 (파생 정보)
+  if (item.bulkQty > 1) {
+    h += '<div class="mc3-price-per">개당 약 ' + mcFmt(unitPrice) + ' 카니</div>';
+  }
+  h += '</div>';
+
+  // ── 수익 계산기 ──
+  h += '<div class="mc3-calc">';
+  h += '<div class="mc3-calc-hd">💰 수익 계산기</div>';
+
+  // 행 1: 구매 수량
+  h += '<div class="mc3-calc-row">';
+  h += '<span class="mc3-calc-label">구매 수량</span>';
+  h += '<div class="mc3-input-wrap">';
+  h += '<input class="mc3-input mc3-qty-input" type="number" min="1" step="1"';
+  h += ' placeholder="' + item.bulkQty + '" id="qty-' + rid + '">';
+  h += '<span class="mc3-input-unit">' + item.unit + '</span>';
+  h += '</div>';
+  h += '</div>';
+
+  // 행 2: 총 구매 금액
+  h += '<div class="mc3-calc-row">';
+  h += '<span class="mc3-calc-label">총 구매가</span>';
+  h += '<div class="mc3-input-wrap">';
+  h += '<input class="mc3-input mc3-price-input" type="number" min="0" step="any"';
+  h += ' placeholder="0" id="price-' + rid + '">';
+  h += '<span class="mc3-input-unit">카니</span>';
+  h += '</div>';
+  h += '</div>';
+
+  h += '<div class="mc3-result" id="res-' + rid + '"></div>';
+  h += '</div>'; // mc3-calc
+
+  h += '</div>'; // mc3-card
+  return h;
+}
+
+function renderMarket() {
+  var view = document.getElementById("market-view");
+  if (!view) return;
+
+  var colAccMap = { green:"#16A34A", blue:"#2563EB", amber:"#D97706" };
+
+  var h = '<div class="mc3-wrap">';
+
+  // 히어로
+  h += '<div class="mc3-hero">';
+  h += '<div class="mc3-hero-in">';
+  h += '<span class="mc3-eyebrow">Server Market</span>';
+  h += '<h2 class="mc3-hero-title">서버 판매 시세가</h2>';
+  h += '<p class="mc3-hero-sub">공식 판매가 기준 개당 추천가 · 구매가 입력 시 이익/손해 즉시 계산</p>';
+  h += '<span class="mc3-date">📅 ' + MARKET_PRICES.date + ' 기준</span>';
+  h += '</div></div>';
+
+  // 섹션
+  h += '<div class="mc3-content">';
+  for (var si = 0; si < MARKET_PRICES.sections.length; si++) {
+    var sec = MARKET_PRICES.sections[si];
+    var acc = colAccMap[sec.color] || colAccMap.blue;
+    h += '<div class="mc3-section">';
+    h += '<div class="mc3-sec-hd" style="border-left-color:' + acc + '">';
+    h += '<span class="mc3-sec-icon">' + sec.icon + '</span>';
+    h += '<span class="mc3-sec-title">' + sec.label + '</span>';
+    h += '<span class="mc3-sec-cnt">' + sec.items.length + '종</span>';
+    h += '</div>';
+    h += '<div class="mc3-cards">';
+    for (var ii = 0; ii < sec.items.length; ii++) {
+      h += buildMarketCard(sec.items[ii], sec);
+    }
+    h += '</div>';
+    h += '</div>';
+  }
+  h += '</div></div>';
+
+  view.innerHTML = h;
+
+  // ── 계산기 이벤트: 구매 수량 + 총 구매금액 ──
+  view.querySelectorAll(".mc3-card").forEach(function(card) {
+    var unitPrice  = parseFloat(card.dataset.unitPrice);  // 서버 개당가
+    var qtyInput   = card.querySelector('[id^="qty-"]');
+    var priceInput = card.querySelector('[id^="price-"]');
+    var resultEl   = card.querySelector('[id^="res-"]');
+    if (!qtyInput || !priceInput || !resultEl) return;
+
+    function calc() {
+      var myQty   = parseFloat(qtyInput.value);
+      var myTotal = parseFloat(priceInput.value);
+
+      if (!qtyInput.value || !priceInput.value || isNaN(myQty) || isNaN(myTotal) || myQty <= 0 || myTotal < 0) {
+        resultEl.innerHTML = "";
+        return;
+      }
+
+      var myUnitCost = myTotal / myQty;           // 내 개당 단가
+      var profitUnit  = unitPrice - myUnitCost;   // 개당 이득/손해
+      var profitTotal = profitUnit * myQty;        // 전체 이득/손해
+      var pct         = (profitTotal / myTotal) * 100;
+      var isProfit    = profitUnit >= 0;
+      var sign        = isProfit ? "+" : "";
+      var cls         = isProfit ? "mc3-res-profit" : "mc3-res-loss";
+
+      // 계산식 행
+      var formulaLine =
+        '<div class="mc3-res-formula">' +
+          myQty + '개 × 서버가 ' + mcFmt(unitPrice) + ' − 내 단가 ' + mcFmt(myUnitCost) +
+          ' = <strong class="' + (isProfit ? "val-up" : "val-dn") + '">' +
+            sign + mcFmt(profitUnit) + ' 카니/개</strong>' +
+        '</div>';
+
+      // 총합 행
+      var totalLine =
+        '<div class="mc3-res-row">' +
+          '<span class="mc3-res-label">총 ' + (isProfit ? "이익" : "손해") + '</span>' +
+          '<span class="mc3-res-val ' + (isProfit ? "val-up" : "val-dn") + '">' +
+            sign + Math.round(profitTotal).toLocaleString("ko-KR") + ' 카니' +
+          '</span>' +
+          '<span class="mc3-res-pct ' + (isProfit ? "pct-up" : "pct-dn") + '">' +
+            sign + pct.toFixed(1) + '%' +
+          '</span>' +
+        '</div>';
+
+      resultEl.innerHTML =
+        '<div class="mc3-result-box ' + cls + '">' +
+          formulaLine + totalLine +
+        '</div>';
+    }
+
+    qtyInput.addEventListener("input", calc);
+    priceInput.addEventListener("input", calc);
+  });
+}
+
 renderSidebar();
 setupNotice();
 setupBgm();
 setupHeaderStars();
+renderMarket();
 pick("hamburger");
 </script>
 </body>
